@@ -1,0 +1,9 @@
+{
+  "rules": {
+    "user": {
+      "$uid": {
+        ".read": "auth != null"
+      }
+    }
+  }
+}
