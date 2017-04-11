@@ -2,7 +2,8 @@
   "rules": {
     "user": {
       "$uid": {
-        ".read": "auth != null"
+        ".read": "auth != null",
+        ".write": "auth != null"
       }
     }
   }
