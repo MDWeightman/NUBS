@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+	<link rel="import" href="nubs-app.html">
+
     <style>
         #login {
             height: 30px;
@@ -28,9 +30,7 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
 
-    <div id="container">
-        <div id="login">LOGIN</div>
-    </div>
+	<nubs-app></nubs-app>
 
     <script src="https://www.gstatic.com/firebasejs/3.7.5/firebase.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.7.4/firebase-app.js"></script>
@@ -49,10 +49,6 @@
         });
 
         FB.Event.subscribe('auth.authResponseChange', App.checkLoginState);
-
-        document.getElementById("login").addEventListener("pointerdown", function() {
-            App.login();
-        });
     </script>
 
 </body>

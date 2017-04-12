@@ -1,0 +1,18 @@
+<link rel="import" href="bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="nubs-login.html">
+<dom-module id="nubs-app">
+	<template>
+		<firebase-app 
+			auth-domain="nubs-25474.firebaseapp.com"
+			database-url="https://nubs-25474.firebaseio.com/"
+			api-key="AIzaSyBItAyW3tMMZiqunfq_4RLGyT42DPYafHU">
+		</firebase-app>
+		<nubs-login></nubs-login>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'nubs-app'
+		})
+	</script>
+</dom-module>
