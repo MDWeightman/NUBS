@@ -2,7 +2,7 @@
   "rules": {
     "user": {
       "$uid": {
-        ".read": "auth != null",
+        ".read": "auth != null || root.child('admins').child($uid).val() == true",
         ".write": "auth != null"
       }
     }
