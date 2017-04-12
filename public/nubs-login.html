@@ -1,7 +1,18 @@
-<link rel="import" href="bower_components/polymerfire/firebase-auth.html">
-<link rel="import" href="bower_components/paper-button/paper-button.html">
+<link rel="import" href="bower_components/polymerfire/firebase-auth.html" />
+<link rel="import" href="bower_components/paper-button/paper-button.html" />
 <dom-module id="nubs-login">
-	<template>
+    <template>
+		<style>
+			:host {
+				display: flex;
+				align-items: center;
+				justify-content: flex-end;
+				height: 68px;
+			}
+			h2 {
+				flex: 1;
+			}
+		</style>
 		<firebase-auth 
 			id="auth" 
 			user="{{user}}"
@@ -13,29 +24,28 @@
 			<h1>Welcome [[user.displayName]]</h1>
 		</template>
 
-		<paper-button raised on-tap="login" hidden$="[[user]]">Sign in</paper-button>
-		<paper-button raised on-tap="logout" hidden$="[[!user]]">Sign out</paper-button>
-	</template>
+    <paper-button raised on-tap="login" hidden$="[[user]]">Sign in</paper-button>
+    <paper-button raised on-tap="logout" hidden$="[[!user]]">Sign out</paper-button>
+    </template>
 
-	<script>
-		Polymer({
-			is: 'nubs-login',
-			properties:{
-				user: {
-					type: Object
-				},
-				statusKnown:{
-					type: Object
-				}
-			},
-			login: function(){
-				return this.$.auth.signInwithPopup();
-			},
-			logout: function(){
-				return this.$.auth.signOut();
-			}
-		})
-
-	</script>
+    <script>
+        Polymer({
+            is: 'nubs-login',
+            properties: {
+                user: {
+                    type: Object
+                },
+                statusKnown: {
+                    type: Object
+                }
+            },
+            login: function() {
+                return this.$.auth.signInwithPopup();
+            },
+            logout: function() {
+                return this.$.auth.signOut();
+            }
+        })
+    </script>
 
 </dom-module>
