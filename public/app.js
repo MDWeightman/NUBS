@@ -17,15 +17,15 @@ class _User {
 		this.accessToken = null;
 	}
 
-	setId(id){
+	setId(id) {
 		this.id = id;
 	}
-	setData(data){
+	setData(data) {
 		this.data = data;
 	}
 
 	getFb() {
-		FB.api('/me', {fields: 'id,name,birthday,gender,religion,picture,email', access_token: App.user.accessToken}, function(data) {
+		FB.api('/me', { fields: 'id,name,birthday,gender,religion,picture,email', access_token: App.user.accessToken }, function(data) {
 			console.log(data);
 			App.user.update(data);
 		});
@@ -38,15 +38,15 @@ class _User {
 		});
 	}
 
-	update(fbUser){
-		if(fbUser.picture && fbUser.picture.data && fbUser.picture.data.url){
+	update(fbUser) {
+		if (fbUser.picture && fbUser.picture.data && fbUser.picture.data.url) {
 			fbUser.picture = fbUser.picture.data.url;
 		}
 		var user = App.database.ref(`user/${App.user.id}`).set(fbUser);
 		console.log(user);
 	}
 
-	draw(){		
+	draw() {
 		var HTML = `
 		<ul class="collection">
 			<li class="collection-item avatar ${this.data.gender}">
@@ -87,3 +87,9 @@ class _App {
 }
 
 var App = new _App();
+
+firebase.auth().onAuthStateChanged(function(user) {
+	if (user) {
+		App.user.getDb(user.uid);
+	} else {}
+});
