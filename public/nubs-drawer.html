@@ -1,0 +1,24 @@
+<link rel="import" href="bower_components/app-layout/app-drawer/app-drawer.html" />
+<link rel="import" href="bower_components/paper-drawer/paper-drawer.html" />
+<link rel="import" href="bower_components/app-route/app-route.html" />
+<link rel="import" href="nubs-login.html" />
+<dom-module id="nubs-drawer">
+    <style>
+         :host {
+            background-color: #ffffff;
+            z-index: 99999;
+        }
+    </style>
+    <template>        
+		<app-drawer id="drawer" swipe-open>
+            <paper-drawer-panel>
+                <nubs-login></nubs-login>
+            </paper-drawer-panel>
+        </app-drawer>
+    </template>
+    <script>
+        Polymer({
+            is: 'nubs-drawer'
+        });
+    </script>
+</dom-module>

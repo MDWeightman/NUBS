@@ -1,11 +1,9 @@
-<link rel="import" href="bower_components/polymerfire/firebase-app.html"/>
+<link rel="import" href="bower_components/polymerfire/firebase-app.html" />
 <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html" />
-<link rel="import" href="bower_components/paper-progress/paper-progress.html" />
-<link rel="import" href="bower_components/app-layout/app-header/app-header.html"/>
-<link rel="import" href="bower_components/app-layout/app-toolbar/app-toolbar.html"/>
-<link rel="import" href="bower_components/app-layout/app-drawer/app-drawer.html"/>
-<link rel="import" href="nubs-login.html"/>
-<link rel="import" href="nubs-notes.html"/>
+<link rel="import" href="bower_components/app-layout/app-header/app-header.html" />
+<link rel="import" href="nubs-toolbar.html" />
+<link rel="import" href="nubs-drawer.html" />
+<link rel="import" href="nubs-notes.html" />
 <dom-module id="nubs-app">
     <template>
 
@@ -27,18 +25,10 @@
 		</firebase-app>
 
 		<app-header reveals>
-			<app-toolbar style="background-color:#4285f4;color:#ffffff;">
-				<paper-icon-button icon="menu" onclick="drawer.toggle()"></paper-icon-button>
-				<div main-title>My app</div>
-				<paper-icon-button icon="delete"></paper-icon-button>
-				<paper-icon-button icon="search"></paper-icon-button>
-				<paper-icon-button icon="close"></paper-icon-button>
-				<!--<paper-progress value="10" indeterminate bottom-item></paper-progress>-->
-			</app-toolbar>
+			<nubs-toolbar></nubs-toolbar>
 		</app-header>
-		<app-drawer id="drawer" swipe-open></app-drawer>
+		<nubs-drawer></nubs-drawer>
 		<sample-content size="10">
-			<nubs-login></nubs-login>
 			<nubs-notes></nubs-notes>
 		</sample-content>
 
