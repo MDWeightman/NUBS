@@ -1,0 +1,61 @@
+<dom-module id="nubs-toolbar-login">
+		<template>
+		<style>
+
+		</style>
+		<firebase-auth 
+			id="auth" 
+			user="{{user}}" 
+			provider="facebook" 
+			status-known="{{statusKnown}}">
+		</firebase-auth>
+		<firebase-document
+			path="/user/{{user.uid}}/picture"
+			data="{{picture}}">
+		</firebase-document>
+
+		<template is="dom-if" if="[[!user]]">
+			<paper-menu-button>
+				<paper-icon-button icon="icons:account-circle" class="dropdown-trigger"></paper-icon-button>
+				<paper-menu class="dropdown-content" style="width:150px;">
+					<paper-item on-tap="login">Sign In</paper-item>
+				</paper-menu>
+			</paper-menu-button>
+		</template>
+
+		<template is="dom-if" if="[[user]]">
+			<paper-menu-button>
+				<!--<paper-button class="dropdown-trigger"><img src="[[picture]]" style="border-radius:50%; width:50px; height:50px;"/></paper-button>-->
+				<paper-icon-button icon="icons:account-circle" class="dropdown-trigger"></paper-icon-button>
+				
+				<paper-menu class="dropdown-content" style="width:150px;">
+					<paper-item on-tap="logout">Sign Out</paper-item>
+				</paper-menu>
+			</paper-menu-button>
+		</template>
+		</template>
+
+		<script>
+				Polymer({
+						is: 'nubs-toolbar-login',
+						properties: {
+								user: {
+										type: Object
+								},
+								picture: {
+										type: Object
+								},
+								statusKnown: {
+										type: Object
+								}
+						},
+						login: function() {
+								return this.$.auth.signInWithPopup();
+						},
+						logout: function() {
+								return this.$.auth.signOut();
+						}
+				})
+		</script>
+
+</dom-module>

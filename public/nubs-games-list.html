@@ -1,0 +1,130 @@
+
+<dom-module id="nubs-games-list">
+	<template>
+		<style>
+      :host {
+        display: none;
+      }
+      :host([active]) {
+        display: block;
+      }
+			.card-container{
+				width: calc(100% - 10%);
+				margin: 0 auto;
+				display: flex;
+				flex-direction: row;
+    		flex-wrap:wrap;
+			}
+			paper-card{
+				display: inline-block;
+    		margin:10px 0 0 10px;
+				flex-grow: 1;
+    		width: calc(100% * (1/2) - 10px - 1px);
+				max-width: calc(50%  - 10px - 1px);
+			}
+  		.game-header { @apply(--paper-font-headline); }
+  		.game-light { color: var(--paper-grey-600); }
+			.game-played {
+				float: right;
+				font-size: 15px;
+				vertical-align: middle;
+			}
+
+			a{ 
+				text-decoration: none;
+			}
+			ul{
+				list-style: none;
+				margin: 0px;
+				padding: 0px;
+			}
+			li{
+				margin: 0px;
+				padding: 0px 10px;
+			}
+  		paper-button { color: #911eb3;text-decoration: none; float: right }
+
+			paper-fab{
+				position: absolute;
+				bottom: 10px;
+				right: 10px; 
+			}
+		</style>
+
+		<firebase-document
+			path="/game"
+			data="{{games}}">
+		</firebase-document>
+		<paper-fab icon="add" title="Create New Game"></paper-fab>
+		<div>
+			<iron-selector>
+				<div class="card-container">
+					<template is="dom-repeat" items="[[gamesList]]" as="game">
+							<paper-card>
+								<div class="card-content">
+									<div class="game-header">[[game.name]]
+										<div class="game-played game-light">
+											<iron-icon icon="av:play-arrow"></iron-icon>
+											<span>[[game.played]]</span>
+										</div>
+									</div>								
+      						<p>[[game.description]]</p>
+      						<p class="game-light">
+										Data :
+										<ul class="game-light">
+											<template is="dom-repeat" items="[[game.data]]" as="dataItem">
+												<li>[[dataItem.name]] : [[dataItem.info]]</li>
+											</template>
+										</ul>
+									</p>
+
+								</div>
+								<div class="card-actions">
+									<a href="#/game/[[game.key]]"><paper-button>Start New</paper-button></a>
+									<a href="#/game/[[game.key]]"><paper-button>Results</paper-button></a>
+								</div>
+							</paper-card>
+					</template>
+				</div>
+      </iron-selector>
+		</div>
+
+	</template>
+	<script>
+		Polymer({
+			is: 'nubs-games-list',
+			properties:{
+				active:{
+					type: Boolean,
+					value: false,
+					reflectToAttribute: true
+				},
+				games: {
+					type: Object,
+					observer: 'readGameDb'
+				},
+				gamesList: {
+					type: Object
+				}
+			},
+			readGameDb: function(n,o){
+				var a = []
+				for(var k in n){
+					n[k].key = k;
+					var da = [];
+					for(var d in n[k].data){
+						n[k].data[d].info = JSON.stringify(n[k].data[d], null, " ");
+						n[k].data[d].name = d;
+						da.push(n[k].data[d]);
+					}
+					n[k].data = da;
+					a.push(n[k]);
+				}
+				if(document.querySelector("nubs-toolbar")){
+					document.querySelector("nubs-toolbar").setTitle("Games List");
+				}
+				this.gamesList = a;
+			}
+		});
+	</script>
+</dom-module>

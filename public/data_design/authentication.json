@@ -1,0 +1,12 @@
+{
+		"authentication": {
+				"users": {
+						"USER_KEY": {
+								"user_data": {}
+						}
+				},
+				"admins": {
+						"USER_KEY": true
+				}
+		}
+}

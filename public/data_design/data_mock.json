@@ -1,0 +1,72 @@
+{
+		"game": {
+				"KhiBe8Ih_wInWPJfIfk": {
+						"name": "Ultimatum",
+						"players": 2,
+						"data": {
+								"units": {
+										"type": "Number",
+										"default": 10
+								}
+						}
+				}
+		},
+		"game_instance": {
+				"KhiD39JCG7PSqoKZntq": {
+						"game": "KhiBe8Ih_wInWPJfIfk",
+						"sessions": {
+								"KhiCGwRjRkWTMczaqwX": "KhiCGwRjRkWTMczaqwX"
+						},
+						"data": {
+								"units": 10
+						}
+				}
+		},
+		"session": {
+				"KhiCGwRjRkWTMczaqwX": {
+						"game_instance": "KhiD39JCG7PSqoKZntq",
+						"complete": true,
+						"players": {
+								"A": "EaXJkjoCbre8PwfMuZMKd9LpCjx2",
+								"B": "EaXJkjoCbre8PwfMuZMKd9LpCjx2"
+						},
+						"turns": {
+								"1": {
+										"player": "A",
+										"value": "6"
+								},
+								"2": {
+										"player": "B",
+										"value": "No"
+								}
+						}
+				}
+		},
+		"invitation": {
+				"sent": {
+						"EaXJkjoCbre8PwfMuZMKd9LpCjx2": true
+				},
+				"accepted": {
+						"EaXJkjoCbre8PwfMuZMKd9LpCjx2": true
+				}
+		},
+		"authentication": {
+				"users": {
+						"EaXJkjoCbre8PwfMuZMKd9LpCjx2": {
+								"birthday": "03/21/1987",
+								"email": "micah_d_w@hotmail.com",
+								"gender": "male",
+								"id": "10154274837596681",
+								"name": "Micah Weightman",
+								"picture": "https://scontent.xx.fbcdn.net/v/t1.0-1/p50x50/293860_10151080505066681_644595321_n.jpg?oh=eabb40005829db46c1827a3e800b6fa8&oe=5995A2A5",
+								"religion": "Christian",
+								"sessions": {
+										"KhiCGwRjRkWTMczaqwX": "A"
+								}
+						}
+				},
+				"admins": {
+						"EaXJkjoCbre8PwfMuZMKd9LpCjx2": true
+				}
+		}
+}

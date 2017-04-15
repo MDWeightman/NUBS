@@ -1,0 +1,41 @@
+
+<link rel="import" href="nubs-games-list.html" />
+<link rel="import" href="nubs-game.html" />
+<dom-module id="nubs-pages">
+	<template>
+		<style>
+			:host {
+				display: block;
+			}
+		</style>
+
+		<app-route route="{{route}}"
+               pattern="/games/list"
+               active="{{gamesListActive}}"></app-route>
+
+    <app-route route="{{route}}"
+               pattern="/game/:game"
+               active="{{gameActive}}"
+               data="{{gameData}}"></app-route>
+
+		<nubs-games-list active="{{gamesListActive}}"></nubs-games-list>
+		<nubs-game game="{{gameData.game}}" active="{{gameActive}}"></nubs-game>
+
+
+	</template>
+	<script>
+		Polymer({
+			is: 'nubs-pages',
+      observers: [
+        '_lockScroll(isLoading)'
+      ],
+      _lockScroll: function(isLoading) {
+        if (isLoading) {
+          document.body.style.overflow = 'hidden';
+        } else {
+          document.body.style.overflow = 'visible';
+        }
+      }
+		});
+	</script>
+</dom-module>

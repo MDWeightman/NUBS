@@ -1,27 +1,44 @@
-<link rel="import" href="bower_components/app-layout/app-toolbar/app-toolbar.html" />
+<link rel="import" href="nubs-toolbar-login.html" />
 <dom-module id="nubs-toolbar">
-    <template>
-        <style>
-            :host {
-                display: block;
-                background-color:#4285f4;
-                color:#ffffff;
-            }
-        </style>
-        <app-toolbar>
-            <paper-icon-button icon="menu" onclick="drawer.toggle()"></paper-icon-button>
-            <div main-title>[[title]]</div>
-        </app-toolbar>
-    </template>
-    <script>
-        Polymer({
-            is: 'nubs-toolbar',
-            properties: {
-                title: {
-                    type: Object,
-                    value: 'NUBS'
-                }
-            }
-        });
-    </script>
+		<template>
+		<style>
+			:host {
+				display: block;
+				background-color:#911eb3;
+				color:#ffffff;
+			}
+		</style>
+
+		<app-toolbar>
+			
+			<paper-icon-button icon="menu" onclick="drawer.toggle()"></paper-icon-button>
+				<div main-title>
+					<iron-pages attr-for-selected="name" selected="{{route.page}}">
+						<div name="games">Game Lsit</div>
+						<div name="game">Game - [[getGame(tail.path)]]</div>
+					</iron-pages>
+				</div>
+			<nubs-toolbar-login></nubs-toolbar-login>
+		</app-toolbar>
+
+
+	</template>
+		<script>
+				Polymer({
+						is: 'nubs-toolbar',
+						properties: {
+							title: {
+									type: Object,
+									value: 'NUBS'
+							}
+						},
+						setTitle: function(value){
+							this.title = value;
+						},
+						getGame:function(game){
+							game = game.replace("/","");
+							return firebase.database().ref(`games/${game}`).child("name")
+						}
+				});
+		</script>
 </dom-module>

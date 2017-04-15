@@ -1,0 +1,87 @@
+
+<dom-module id="nubs-game">
+	<template>
+		<style>
+			:host {
+				display: none;
+			}
+			:host([active]) {
+				display: block;
+			}
+			.card-container{
+				width: calc(100% - 10%);
+				margin: 0 auto;
+				display: flex;
+				flex-direction: row;
+    		flex-wrap:wrap;
+			}
+
+			#primaryProgress {
+				background: #911eb3 !important;
+			}
+			paper-card{
+				display: inline-block;
+    		margin:10px 0 0 10px;
+				flex-grow: 1;
+    		width: calc(100% 10px - 1px);
+			}
+  		.game-header { @apply(--paper-font-headline); }
+		</style>
+		
+		<firebase-document
+			path="/game/{{game}}"
+			data="{{gameDb}}">
+		</firebase-document>
+
+
+
+		<template is="dom-bind">
+			
+			<paper-stepper progress-bar no-buttons selected="{{selected}}">
+				<paper-step></paper-step>
+				<paper-step></paper-step>
+				<paper-step></paper-step>
+			</paper-stepper>
+
+			
+			<div class="card-container">
+					<paper-card>
+						<div class="card-content">
+							<div class="game-header">Game {{gameDb.name}}</div>
+								<iron-pages selected="[[selected]]">
+									<div>Step 1</div>
+									<div>Step 2</div>
+									<div>Step 3</div>
+								</iron-pages>
+						</div>
+						<div class="card-actions">
+							<paper-stepper selected="{{selected}}">
+								<paper-step></paper-step>
+								<paper-step></paper-step>
+								<paper-step></paper-step>
+							</paper-stepper>
+						</div>
+					</paper-card>
+			</div>
+		</template>
+
+	</template>
+	<script>
+		Polymer({
+			is: 'nubs-game',
+			properties:{
+				active:{
+					type: Boolean,
+					value: false,
+					reflectToAttribute: true
+				},
+				gameDb:{
+					type: Object,
+					observer: 'readGameDb'
+				}
+			},
+			readGameDb: function(n,o){
+			}
+		});
+	</script>
+</dom-module>

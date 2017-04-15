@@ -1,0 +1,10 @@
+{
+		"invitation": {
+				"pending": {
+						"USER_KEY": true
+				},
+				"accepted": {
+						"USER_KEY": true
+				}
+		}
+}

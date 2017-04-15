@@ -1,0 +1,20 @@
+{
+		"session": {
+				"game_instance": "GAME_INSTANCE_KEY",
+				"complete": true,
+				"players": {
+						"A": "USER_KEY",
+						"B": "USER_KEY"
+				},
+				"turns": {
+						"1": {
+								"player": "A",
+								"value": "6"
+						},
+						"2": {
+								"player": "B",
+								"value": "No"
+						}
+				}
+		}
+}

@@ -1,11 +1,9 @@
-<link rel="import" href="bower_components/polymerfire/firebase-app.html" />
-<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html" />
-<link rel="import" href="bower_components/app-layout/app-header/app-header.html" />
+<link rel="import" href="imports.html" />
 <link rel="import" href="nubs-toolbar.html" />
 <link rel="import" href="nubs-drawer.html" />
-<link rel="import" href="nubs-notes.html" />
+<link rel="import" href="nubs-pages.html" />
 <dom-module id="nubs-app">
-    <template>
+		<template>
 
 		<style>
 			:host {
@@ -13,10 +11,16 @@
 				font-family: Roboto, sans-serif;
 				margin: 0 auto;
 				position: absolute;
-				left: 0px;
-				top:0px;
-				width: 100%;
+				left: 0;
+				top:0;
+				right:0;
+				bottom:0;
 			}
+			main{
+				width: 100%;
+				margin: 0 auto;
+			}
+
 		</style>
 		<firebase-app 
 			auth-domain="nubs-25474.firebaseapp.com"
@@ -24,20 +28,42 @@
 			api-key="AIzaSyBItAyW3tMMZiqunfq_4RLGyT42DPYafHU">
 		</firebase-app>
 
+
+		<app-location route="{{route}}" use-hash-as-path></app-location>
+		<app-route route="{{route}}"
+							 pattern="/:page"
+							 data="{{pageData}}"
+							 tail="{{pageTail}}"></app-route>
+
+
 		<app-header reveals>
-			<nubs-toolbar></nubs-toolbar>
+			<nubs-toolbar route="{{pageData}}" tail="{{pageTail}}"></nubs-toolbar>
 		</app-header>
 		<nubs-drawer></nubs-drawer>
-		<sample-content size="10">
-			<nubs-notes></nubs-notes>
-		</sample-content>
 
+		<main>
+			<nubs-pages route="{{route}}"></nubs-pages>
+		</main>		
+		
+		
 
 	</template>
 
-    <script>
-        Polymer({
-            is: 'nubs-app'
-        })
-    </script>
+		<script>
+			Polymer({
+				is: 'nubs-app',
+				observers: [
+					'_updateScroll(route)'
+				],
+
+				attatched: function(){
+					if(!this.route.path){
+						this.set('route.path', '#/games/list');
+					}
+				},
+				_updateScroll: function() {
+					window.scroll(0, 0);
+				}
+			})
+		</script>
 </dom-module>

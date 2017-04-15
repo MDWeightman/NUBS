@@ -1,0 +1,64 @@
+{
+		"game": {
+				"GAME_KEY": {
+						"name": "Ultimatum",
+						"players": 2,
+						"data": {
+								"units": "10"
+						}
+				}
+		},
+		"game_instance": {
+				"GAME_INSTANCE_KEY": {
+						"game": "GAME_KEY",
+						"sessions": {
+								"SESSION_KEY": "SESSION_KEY"
+						}
+				}
+		},
+		"session": {
+				"game_instance": "GAME_INSTANCE_KEY",
+				"complete": true,
+				"players": {
+						"A": "USER_KEY",
+						"B": "USER_KEY"
+				},
+				"turns": {
+						"1": {
+								"player": "A",
+								"value": "6"
+						},
+						"2": {
+								"player": "B",
+								"value": "No"
+						}
+				}
+		},
+		"invitation": {
+				"sent": {
+						"USER_KEY": true
+				},
+				"accepted": {
+						"USER_KEY": true
+				}
+		},
+		"authentication": {
+				"users": {
+						"USER_KEY": {
+								"birthday": "03/21/1987",
+								"email": "micah_d_w@hotmail.com",
+								"gender": "male",
+								"id": "10154274837596681",
+								"name": "Micah Weightman",
+								"picture": "https://scontent.xx.fbcdn.net/v/t1.0-1/p50x50/293860_10151080505066681_644595321_n.jpg?oh=eabb40005829db46c1827a3e800b6fa8&oe=5995A2A5",
+								"religion": "Christian",
+								"sessions": {
+										"SESSION_KEY": "SESSION_KEY"
+								}
+						}
+				},
+				"admins": {
+						"USER_KEY": true
+				}
+		}
+}

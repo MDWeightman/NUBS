@@ -1,0 +1,12 @@
+{
+		"game": {
+				"GAME_KEY": {
+						"name": "Ultimatum",
+						"players": 2,
+						"turn": "A",
+						"data": {
+								"units": "10"
+						}
+				}
+		}
+}

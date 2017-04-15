@@ -1,66 +1,53 @@
-<link rel="import" href="bower_components/polymerfire/firebase-auth.html" />
-<link rel="import" href="bower_components/polymerfire/firebase-query.html" />
-<link rel="import" href="bower_components/paper-button/paper-button.html" />
-<link rel="import" href="bower_components/paper-drawer/paper-drawer.html" />
-<link rel="import" href="bower_components/paper-drawer/paper-drawer-title.html" />
-<link rel="import" href="bower_components/paper-drawer/paper-drawer-subheader.html" />
-<link rel="import" href="bower_components/paper-drawer/paper-drawer-icon-item.html" />
 <dom-module id="nubs-login">
-    <template>
+		<template>
 		<style>
 		</style>
 		<firebase-auth 
-			id="auth" 
+			id="auth-login" 
 			user="{{user}}"
 			provider="facebook"
 			status-known="{{statusKnown}}">
 		</firebase-auth>
-		<firebase-query
-			id="query"
-			path="/user/[[user.uid]]"
-			data="{{userData}}">
-		</firebase-query>
 
 		<template is="dom-if" if="[[user]]">
-            <paper-drawer-title 
-                photo="[[getPicture]]" 
-                name="[[user.displayName]]" 
-                email="[[user.email]]" 
-                style="background-color:#4285f4;color:#ffffff;">
-            </paper-drawer-title>
-            <paper-drawer-subheader>Items with icon</paper-drawer-subheader>
-            <paper-drawer-icon-item icon="icons:history">Played Games</paper-drawer-icon-item>
-            <paper-drawer-icon-item icon="account-circle">Users</paper-drawer-icon-item>
+				<paper-drawer-title 
+						photo="[[user.photo]]" 
+						name="[[user.displayName]]" 
+						email="[[user.email]]" 
+						style="background-color:#4285f4;color:#ffffff;">
+				</paper-drawer-title>
+				<paper-drawer-subheader>Items with icon</paper-drawer-subheader>
+				<paper-drawer-icon-item icon="icons:history">Played Games</paper-drawer-icon-item>
+				<paper-drawer-icon-item icon="account-circle">Users</paper-drawer-icon-item>
 		</template>
 
-    <!--<paper-button raised on-tap="login" hidden$="[[user]]">Sign in</paper-button>
-    <paper-button raised on-tap="logout" hidden$="[[!user]]">Sign out</paper-button>-->
-    </template>
 
-    <script>
-        Polymer({
-            is: 'nubs-login',
-            properties: {
-                user: {
-                    type: Object
-                },
-                userData: {
-                    type: Object
-                },
-                statusKnown: {
-                    type: Object
-                }
-            },
-            getPicture: function() {
-                console.log(this.$.query.ref.child('picture').val());
-            },
-            login: function() {
-                return this.$.auth.signInWithPopup();
-            },
-            logout: function() {
-                return this.$.auth.signOut();
-            }
-        })
-    </script>
+		<paper-button raised on-tap="login" hidden$="[[user]]">Sign in</paper-button>
+		<paper-button raised on-tap="logout" hidden$="[[!user]]">Sign out</paper-button>
+
+		</template>
+
+		<script>
+				Polymer({
+						is: 'nubs-login',
+						properties: {
+								user: {
+										type: Object
+								},
+								userData: {
+										type: Object
+								},
+								statusKnown: {
+										type: Object
+								}
+						},
+						login: function() {
+								return this.$.auth.signInWithPopup();
+						},
+						logout: function() {
+								return this.$.auth.signOut();
+						}
+				})
+		</script>
 
 </dom-module>
