@@ -1,0 +1,320 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+
+<script>
+		/** @polymerBehavior FirebaseHelper */
+		Polymer.FirebaseHelper = {
+
+				_firebaseGetGame: function(gameKey) {
+						var self = this;
+						firebase.database().ref('/game').once('value', function(snapshot) {
+								snapshot.forEach(function(childSnapshot) {
+										self._processGame(childSnapshot.key);
+								});
+						}.bind(this));
+				},
+				_processGame: function(gameKey) {
+						firebase.database().ref('/game/' + gameKey).once('value', function(snapshot) {
+								if (snapshot.val()) {
+										var obj = snapshot.val();
+										obj.key = snapshot.key;
+										this.push('_games', obj);
+								}
+						}.bind(this));
+				},
+
+
+				_firebaseUpdateUserInfo: function(user) {
+						this.set('_channels', []);
+						if (!user)
+								return;
+						if (this.offline) {
+								this.$.loading.hidden = true;
+						}
+						firebase.database().ref('/users/' + user.uid).once('value', function(snapshot) {
+								var userInfo = snapshot.val();
+								this.$.newPost.hidden = false;
+								this.$.newPost._emojify();
+								this.$.loading.hidden = true;
+								this.$.pages.hidden = false;
+								// If online, try to update the can/can't edit public channels
+								this._firebaseUpdatePublicChannels();
+								if (userInfo) {
+										console.log('Existing user:', this.user);
+										// Get this user's private channels, if any.
+										if (!this.offline)
+												this._firebaseGetUserChannels(snapshot.val().channels || []);
+								} else {
+										console.log('New user!');
+										firebase.database().ref('/users/').child(user.uid)
+												.set({
+														id: user.uid,
+														name: user.displayName,
+														email: user.email,
+														photo: user.photoURL,
+														createdAt: {
+																'.sv': 'timestamp'
+														}
+												});
+								}
+						}.bind(this));
+				},
+				_firebaseUpdatePublicChannels: function() {
+						var self = this;
+						for (var i = 0; i < this.publicChannels.length; i++) {
+								firebase.database().ref('/channels/' + this.publicChannels[i].$key).once('value', function(snapshot) {
+										var channel = snapshot.val();
+										if (!snapshot.val())
+												return;
+										// HACK: Since we want to reuse the same UI code for the pre-online details,
+										// reuse the $key property.
+										channel.$key = channel.key = snapshot.key;
+										// `this` is the index in the array, i know that's weird but halp?
+										self.set(['publicChannels', Number(this)], channel);
+								}.bind(i)); // lol omg
+						}
+				},
+				_firebaseGetUserChannels: function(channelIds) {
+						var self = this;
+						for (var i = 0; i < channelIds.length; i++) {
+								firebase.database().ref('/channels/' + channelIds[i]).once('value', function(snapshot) {
+										this._processOneChannel(snapshot.key);
+								}.bind(this));
+						}
+				},
+				_processOneChannel: function(channelId) {
+						firebase.database().ref('/channels/' + channelId).once('value', function(snapshot) {
+								// This channel may not exist.
+								if (snapshot.val()) {
+										// Push instead of set so that we can do this incrementally I guess.
+										var obj = snapshot.val();
+										obj.key = snapshot.key;
+										this.push('_channels', obj);
+								}
+						}.bind(this));
+				},
+
+				_firebaseAddMessage: function(channel, message, original, location) {
+						// Get the channel ref from the names -> keys mapping
+						firebase.database().ref('/channelNames/' + channel).once('value', function(snapshot) {
+								var channelRef = snapshot.val().id;
+								var now = new Date().getTime();
+								firebase.database().ref('/posts/').child(channelRef)
+										.push({
+												name: this.user.displayName,
+												message: message,
+												original: original,
+												email: this.user.email,
+												uid: this.user.uid,
+												image: this.user.photoURL,
+												likes: 0,
+												location: location,
+												createdAt: now,
+												index: -now /* because reverse sorting firebase data is hard */
+										});
+						}.bind(this));
+				},
+				_firebaseLikeMessage: function(post, channel) {
+						firebase.database().ref('/posts/' + channel).child(post).once('value', function(snapshot) {
+								var likes = snapshot.val().likes || 0;
+								snapshot.ref.child('likes').set(likes + 1);
+						});
+				},
+				_firebaseUnlikeMessage: function(post, channel) {
+						firebase.database().ref('/posts/' + channel).child(post).once('value', function(snapshot) {
+								var likes = snapshot.val().likes || 0;
+								if (likes !== 0) {
+										snapshot.ref.child('likes').set(likes - 1);
+								}
+						});
+				},
+				_firebaseDeleteMessage: function(post, channel) {
+						firebase.database().ref('/posts/' + channel).child(post).remove();
+				},
+
+				_firebaseAddChannel: function(channel, users, isPublic) {
+						var self = this;
+						// Check if the channel already exists.
+						firebase.database().ref('/channelNames/' + channel).once('value', function(snapshot) {
+								if (snapshot.val()) {
+										self.$.newChannel.showError('Oops! This name is already taken.');
+								} else {
+										self.$.newChannel.hide();
+										// Add this user as an user if they didn't add themselves already
+										if (users.indexOf(self.user.email) === -1) {
+												users.splice(0, 0, self.user.email);
+										}
+										// Create the channel.
+										var channelObj = {
+												name: channel,
+												owner: self.user.uid,
+												ownerEmail: self.user.email,
+												users: users.length == 0 ? null : users,
+												public: isPublic,
+												createdAt: {
+														'.sv': 'timestamp'
+												}
+										}
+										var channelRef = firebase.database().ref('/channels/').push(channelObj);
+										channelObj.key = channelRef.key;
+										// If it's public, also add it to the public channels.
+										if (isPublic) {
+												firebase.database().ref('/publicChannels/').child(channelRef.key).set({
+														name: channel
+												}).then(function(channelObj, success) {
+														// The channel created should be the last one in the list, and we need to ammend
+														// it with the extra data (like what _firebaseUpdatePublicChannels() does on load)
+														this.set(['publicChannels', this.publicChannels.length - 1], channelObj);
+												}.bind(self, channelObj));
+										} else {
+												// Add it to the UI now because the next steps could be slow.
+												self.push('_channels', channelObj);
+										}
+										// Also add it in the name -> key mapping.
+										firebase.database().ref('/channelNames/').child(channel).set({
+												id: channelRef.key
+										});
+										if (isPublic) {
+												return;
+										}
+										// Add this channel to this user.
+										firebase.database().ref('/users/' + self.user.uid).once('value', function(snapshot) {
+												var userChannels = snapshot.val().channels || [];
+												userChannels.push(channelRef.key);
+												snapshot.ref.update({
+														channels: userChannels
+												});
+										});
+										// For each of the users in the list, add this channel to them.
+										// The problem is that the user only entered emails, so we have to go
+										// through the whole database and match emails(since they're not keys)
+										// TODO: figure out if there's a better way.
+										firebase.database().ref('/users/').once('value', function(snapshot) {
+												var allUsers = snapshot.val();
+												for (var user in allUsers) {
+														// This user is in the new channel! (but may be us, so skip us)
+														if (allUsers[user].email !== self.user.email &&
+																users.indexOf(allUsers[user].email) != -1) {
+																var userChannels = allUsers[user].channels || [];
+																userChannels.push(channelRef.key);
+																firebase.database().ref('/users/' + user).update({
+																		channels: userChannels
+																});
+														}
+												}
+										});
+								}
+						});
+				},
+				_firebaseDeleteChannel: function(ref, channelName) {
+						var displayedPage = this.$.pages.querySelector('view-posts.iron-selected');
+						// Delete this from the names -> keys table.
+						firebase.database().ref('/channelNames/').child(channelName).remove();
+						// Delete this from the main channels table.
+						firebase.database().ref('/channels/').child(ref).remove();
+						// Delete this from the public channels table.
+						firebase.database().ref('/publicChannels/').child(ref).remove();
+						this.$.newChannel.hide();
+						// Switch to the global channel since we're now displaying junk data.
+						this.set('routeData.page', 'global');
+						// Delete the old posts list.
+						if (displayedPage.ref === ref) {
+								Polymer.dom(this.$.pages).removeChild(displayedPage);
+						}
+						// TODO: could optionally delete this from the users too.
+						// Delete this from the UI.
+						for (var i = 0; i < this.channels.length; i++) {
+								if (this.channels[i].name === channelName) {
+										this.splice('_channels', i, 1);
+										return;
+								}
+						}
+				},
+				_firebaseRenameChannel: function(ref, oldName, newName) {
+						var self = this;
+						// Check if the new channel already exists.
+						firebase.database().ref('/channelNames/' + newName).once('value', function(snapshot) {
+								if (snapshot.val()) {
+										self.$.newChannel.showError('Oops! This name is already taken.');
+								} else {
+										// Update the name in the main channels table
+										firebase.database().ref('/channels/').child(ref).update({
+														name: newName
+												})
+												.then(function(success) {
+														// Update the name in the names -> keys table.
+														firebase.database().ref('/channelNames/').child(oldName).remove();
+														firebase.database().ref('/channelNames/').child(newName).set({
+																id: ref
+														});
+														self.$.newChannel.hide();
+														// Update the name in the UI
+														for (var i = 0; i < self.channels.length; i++) {
+																if (self.channels[i].name === oldName) {
+																		self.set(['_channels', i, 'name'], newName);
+																		return;
+																}
+														}
+												}, function(error) {
+														console.log(error)
+														self.$.newChannel.showError('Permission denied. Are you sure you\'re allowed to do this?');
+												});
+								}
+						});
+				},
+
+				_firebaseAddUsers: function(ref, newUsers) {
+						this.$.newChannel.hide();
+						// Add these users in the channels database
+						firebase.database().ref('/channels/' + ref).once('value', function(snapshot) {
+								var currentUsers = snapshot.val().users;
+								currentUsers = currentUsers.concat(newUsers);
+								snapshot.ref.update({
+										users: currentUsers
+								});
+						});
+						// For each of the users in the list, add this channel to them.
+						firebase.database().ref('/users/').once('value', function(snapshot) {
+								var users = snapshot.val();
+								for (var user in users) {
+										if (newUsers.indexOf(users[user].email) != -1) {
+												var currentUserChannels = users[user].channels || [];
+												currentUserChannels.push(ref);
+												firebase.database().ref('/users/' + user).update({
+														channels: currentUserChannels
+												});
+										}
+								}
+						});
+				},
+				_firebaseDeleteUsers: function(ref, delUsers) {
+						this.$.newChannel.hide();
+						// Remove these users in the channels database
+						firebase.database().ref('/channels/' + ref).once('value', function(snapshot) {
+								var currentUsers = snapshot.val().users;
+								for (var user in delUsers) {
+										var index = currentUsers.indexOf(delUsers[user]);
+										if (index != -1) {
+												currentUsers.splice(index, 1);
+										}
+								}
+								snapshot.ref.update({
+										users: currentUsers
+								});
+						});
+						// For each of the users in the list, remove this channel from them.
+						firebase.database().ref('/users/').once('value', function(snapshot) {
+								var users = snapshot.val();
+								for (var user in users) {
+										if (delUsers.indexOf(users[user].email) != -1) {
+												var currentUserChannels = users[user].channels || [];
+												var channelIndex = currentUserChannels.indexOf(ref);
+												currentUserChannels.splice(channelIndex, 1);
+												firebase.database().ref('/users/' + user).update({
+														channels: currentUserChannels
+												});
+										}
+								}
+						});
+				}
+		};
+</script>

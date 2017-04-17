@@ -1,38 +1,43 @@
 <dom-module id="nubs-toolbar-login">
 		<template>
-		<style>
+			<style>
+				.avatar {
+					border-radius: 50%;
+					width: 36px;
+					height: 36px;
+					vertical-align: middle;
+					margin-left: 16px;
+				}
+				paper-button {
+					font-size: 14px;
+					letter-spacing: 1px;
+					color: white;
+				}
+			</style>
+			<firebase-auth 
+				id="facebookAuth" 
+				user="{{user}}" 
+				provider="facebook" 
+				status-known="{{statusKnown}}">
+			</firebase-auth>
+			<firebase-document
+				path="/user/{{user.uid}}/picture"
+				data="{{picture}}">
+			</firebase-document>
 
-		</style>
-		<firebase-auth 
-			id="auth" 
-			user="{{user}}" 
-			provider="facebook" 
-			status-known="{{statusKnown}}">
-		</firebase-auth>
-		<firebase-document
-			path="/user/{{user.uid}}/picture"
-			data="{{picture}}">
-		</firebase-document>
+			<template is="dom-if" if="[[!user]]">			
+				<div id="createChannelButton" class="userInfo">
+					<paper-icon-button icon="icons:account-circle" class="avatar"></paper-icon-button>
+					<paper-button on-tap="login" hidden$="[[offline]]">Sign In</paper-button>
+				</div>
+			</template>
 
-		<template is="dom-if" if="[[!user]]">
-			<paper-menu-button>
-				<paper-icon-button icon="icons:account-circle" class="dropdown-trigger"></paper-icon-button>
-				<paper-menu class="dropdown-content" style="width:150px;">
-					<paper-item on-tap="login">Sign In</paper-item>
-				</paper-menu>
-			</paper-menu-button>
-		</template>
-
-		<template is="dom-if" if="[[user]]">
-			<paper-menu-button>
-				<!--<paper-button class="dropdown-trigger"><img src="[[picture]]" style="border-radius:50%; width:50px; height:50px;"/></paper-button>-->
-				<paper-icon-button icon="icons:account-circle" class="dropdown-trigger"></paper-icon-button>
-				
-				<paper-menu class="dropdown-content" style="width:150px;">
-					<paper-item on-tap="logout">Sign Out</paper-item>
-				</paper-menu>
-			</paper-menu-button>
-		</template>
+			<template is="dom-if" if="[[user]]">	
+				<div id="createChannelButton" class="userInfo">
+					<img class="avatar" src="[[user.photoURL]]">
+					<paper-button on-tap="logout" hidden$="[[offline]]">Sign Out</paper-button>
+				</div>
+			</template>
 		</template>
 
 		<script>
@@ -50,10 +55,10 @@
 								}
 						},
 						login: function() {
-								return this.$.auth.signInWithPopup();
+								return this.$.facebookAuth.signInWithPopup();
 						},
 						logout: function() {
-								return this.$.auth.signOut();
+								return this.$.facebookAuth.signOut();
 						}
 				})
 		</script>

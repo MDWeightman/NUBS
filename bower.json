@@ -35,6 +35,10 @@
     "iron-pages": "PolymerElements/iron-pages#^1.0.8",
     "paper-fab": "PolymerElements/paper-fab#^1.2.1",
     "paper-stepper": "^1.2.0",
-    "paper-checkbox": "PolymerElements/paper-checkbox#^1.4.2"
+    "paper-checkbox": "PolymerElements/paper-checkbox#^1.4.2",
+    "iron-list": "PolymerElements/iron-list#^1.4.5",
+    "app-localize-behavior": "^1.0.0",
+    "app-storage": "PolymerElements/app-storage#^1.0.0",
+    "iron-signals": "PolymerElements/iron-signals#^1.0.3"
   }
 }

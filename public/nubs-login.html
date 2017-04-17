@@ -2,12 +2,6 @@
 		<template>
 		<style>
 		</style>
-		<firebase-auth 
-			id="auth-login" 
-			user="{{user}}"
-			provider="facebook"
-			status-known="{{statusKnown}}">
-		</firebase-auth>
 
 		<template is="dom-if" if="[[user]]">
 				<paper-drawer-title 

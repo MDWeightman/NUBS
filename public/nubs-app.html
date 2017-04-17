@@ -15,6 +15,9 @@
 				top:0;
 				right:0;
 				bottom:0;
+				
+        --app-primary-color: #911eb3;  /* purple */
+        --app-secondary-text-color: #B966D1;
 			}
 			main{
 				width: 100%;
@@ -27,43 +30,57 @@
 			database-url="https://nubs-25474.firebaseio.com/"
 			api-key="AIzaSyBItAyW3tMMZiqunfq_4RLGyT42DPYafHU">
 		</firebase-app>
+		<firebase-auth 
+			id="facebookAuth" 
+			user="{{user}}"
+			provider="facebook"
+			status-known="{{statusKnown}}">
+		</firebase-auth>
 
 
 		<app-location route="{{route}}" use-hash-as-path></app-location>
 		<app-route route="{{route}}"
 							 pattern="/:page"
 							 data="{{pageData}}"
-							 tail="{{pageTail}}"></app-route>
+							 tail="{{pageTail}}"
+							 query-params="{{queryParams}}"></app-route>
 
 
-		<app-header reveals>
-			<nubs-toolbar route="{{pageData}}" tail="{{pageTail}}"></nubs-toolbar>
+		<app-header fixed>
+			<nubs-toolbar user="{{user}}" uid="[[user.uid]]" route="{{pageData}}" tail="{{pageTail}}"></nubs-toolbar>
 		</app-header>
-		<nubs-drawer></nubs-drawer>
 
 		<main>
-			<nubs-pages route="{{route}}"></nubs-pages>
+			<nubs-pages user="{{user}}" uid="[[user.uid]]" route="{{route}}"></nubs-pages>
 		</main>		
 		
 		
+		<nubs-drawer></nubs-drawer>
 
 	</template>
 
 		<script>
-			Polymer({
-				is: 'nubs-app',
-				observers: [
-					'_updateScroll(route)'
-				],
-
-				attatched: function(){
-					if(!this.route.path){
-						this.set('route.path', '#/games/list');
-					}
-				},
-				_updateScroll: function() {
-					window.scroll(0, 0);
-				}
-			})
+				Polymer({
+						is: 'nubs-app',
+						observers: [
+								'_updateScroll(route)'
+						],
+						attatched: function() {
+								if (!this.route.path) {
+										this.set('route.path', '#/games/list');
+								}
+						},
+						ready: function() {
+								this.$.facebookAuth.auth.onAuthStateChanged(function(user) {
+										console.log(user);
+								}.bind(this));
+						},
+						_updateScroll: function() {
+								window.scroll(0, 0);
+						},
+						login: function() {
+								this.$.googleAuth.signInWithPopup();
+						}
+				})
 		</script>
 </dom-module>

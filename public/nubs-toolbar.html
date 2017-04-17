@@ -4,7 +4,7 @@
 		<style>
 			:host {
 				display: block;
-				background-color:#911eb3;
+        background-color: var(--app-primary-color);
 				color:#ffffff;
 			}
 		</style>
@@ -15,10 +15,10 @@
 				<div main-title>
 					<iron-pages attr-for-selected="name" selected="{{route.page}}">
 						<div name="games">Game Lsit</div>
-						<div name="game">Game - [[getGame(tail.path)]]</div>
+						<div name="game">Game - </div>
 					</iron-pages>
 				</div>
-			<nubs-toolbar-login></nubs-toolbar-login>
+			<nubs-toolbar-login user="{{user}}"></nubs-toolbar-login>
 		</app-toolbar>
 
 
@@ -30,14 +30,13 @@
 							title: {
 									type: Object,
 									value: 'NUBS'
+							},
+							gameName: {
+									type: String
 							}
 						},
 						setTitle: function(value){
 							this.title = value;
-						},
-						getGame:function(game){
-							game = game.replace("/","");
-							return firebase.database().ref(`games/${game}`).child("name")
 						}
 				});
 		</script>

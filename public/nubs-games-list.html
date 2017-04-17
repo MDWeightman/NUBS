@@ -51,15 +51,21 @@
 			}
 		</style>
 
-		<firebase-document
+		<firebase-query
 			path="/game"
-			data="{{games}}">
-		</firebase-document>
+			data="{{_games}}">
+		</firebase-query>
+    <app-indexeddb-mirror
+      session="[[uid]]"
+      key="/game"
+      data="[[_games]]"
+      persisted-data="{{games}}">
+    </app-indexeddb-mirror>
 		<paper-fab icon="add" title="Create New Game"></paper-fab>
 		<div>
 			<iron-selector>
 				<div class="card-container">
-					<template is="dom-repeat" items="[[gamesList]]" as="game">
+					<template is="dom-repeat" items="[[games]]" as="game">
 							<paper-card>
 								<div class="card-content">
 									<div class="game-header">[[game.name]]
@@ -69,19 +75,19 @@
 										</div>
 									</div>								
       						<p>[[game.description]]</p>
-      						<p class="game-light">
+      						<!--<p class="game-light">
 										Data :
 										<ul class="game-light">
 											<template is="dom-repeat" items="[[game.data]]" as="dataItem">
 												<li>[[dataItem.name]] : [[dataItem.info]]</li>
 											</template>
 										</ul>
-									</p>
+									</p>-->
 
 								</div>
 								<div class="card-actions">
-									<a href="#/game/[[game.key]]"><paper-button>Start New</paper-button></a>
-									<a href="#/game/[[game.key]]"><paper-button>Results</paper-button></a>
+									<a href="#/game/[[game.$key]]" on-tap="signal"><paper-button>Start New</paper-button></a>
+									<a href="#/game/[[game.$key]]"><paper-button>Results</paper-button></a>
 								</div>
 							</paper-card>
 					</template>
@@ -108,22 +114,25 @@
 				}
 			},
 			readGameDb: function(n,o){
-				var a = []
-				for(var k in n){
-					n[k].key = k;
-					var da = [];
-					for(var d in n[k].data){
-						n[k].data[d].info = JSON.stringify(n[k].data[d], null, " ");
-						n[k].data[d].name = d;
-						da.push(n[k].data[d]);
-					}
-					n[k].data = da;
-					a.push(n[k]);
-				}
-				if(document.querySelector("nubs-toolbar")){
-					document.querySelector("nubs-toolbar").setTitle("Games List");
-				}
-				this.gamesList = a;
+				// var a = []
+				// for(var k in n){
+				// 	n[k].key = k;
+				// 	var da = [];
+				// 	for(var d in n[k].data){
+				// 		n[k].data[d].info = JSON.stringify(n[k].data[d], null, " ");
+				// 		n[k].data[d].name = d;
+				// 		da.push(n[k].data[d]);
+				// 	}
+				// 	n[k].data = da;
+				// 	a.push(n[k]);
+				// }
+				// if(document.querySelector("nubs-toolbar")){
+				// 	document.querySelector("nubs-toolbar").setTitle("Games List");
+				// }
+				// this.gamesList = a;
+			},
+			signal: function(e){
+				this.fire("iron-signal", {name: "game", data: e.target.parentElement.hash.replace("#/","")});
 			}
 		});
 	</script>

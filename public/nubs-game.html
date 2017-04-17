@@ -1,6 +1,5 @@
-
 <dom-module id="nubs-game">
-	<template>
+		<template>
 		<style>
 			:host {
 				display: none;
@@ -15,9 +14,12 @@
 				flex-direction: row;
     		flex-wrap:wrap;
 			}
-
-			#primaryProgress {
-				background: #911eb3 !important;
+			.step-label{
+				color: #dddddd;
+				margin: 0px 10px;
+			}
+			.step-label.iron-selected{
+				color: #911eb3;
 			}
 			paper-card{
 				display: inline-block;
@@ -26,15 +28,40 @@
     		width: calc(100% 10px - 1px);
 			}
   		.game-header { @apply(--paper-font-headline); }
+      .horizontal {
+        @apply(--layout-horizontal);
+      }
+      .vertical {
+        @apply(--layout-vertical);
+      }
 		</style>
 		
-		<firebase-document
-			path="/game/{{game}}"
-			data="{{gameDb}}">
-		</firebase-document>
+		<firebase-query
+      data="{{_game}}"
+      path="/game/{{gameKey}}">
+    </firebase-query>
+    <app-indexeddb-mirror
+      session="[[uid]]"
+      key="/game/{{gameKey}}"
+      data="[[_game]]"
+      persisted-data="{{game}}">
+    </app-indexeddb-mirror>
+
+		<!--<firebase-query
+      data="{{_users}}"
+      path="/authentication/users"
+      order-by-child="index"
+      limit-to-first="100">
+    </firebase-query>
+    <app-indexeddb-mirror
+      session="[[uid]]"
+      key="/authentication/users"
+      data="[[_users]]"
+      persisted-data="{{users}}">
+    </app-indexeddb-mirror>-->
 
 
-
+		<iron-signals on-iron-signal-game="_getGame"></iron-signals>
 		<template is="dom-bind">
 			
 			<paper-stepper progress-bar no-buttons selected="{{selected}}">
@@ -43,45 +70,78 @@
 				<paper-step></paper-step>
 			</paper-stepper>
 
-			
 			<div class="card-container">
 					<paper-card>
 						<div class="card-content">
-							<div class="game-header">Game {{gameDb.name}}</div>
+							<div class="game-header">Game [[game.name]]</div>
 								<iron-pages selected="[[selected]]">
-									<div>Step 1</div>
-									<div>Step 2</div>
+									<div>
+										[[game]]
+									</div>
+									<div>										
+    								<iron-list items="[[users]]" as="user" id="users" scroll-target="document">
+
+											<div class="horizontal">
+												<img class="avatar" sizing="contain" src="[[user.photoURL]]">
+											</div>
+											
+    								</iron-list>
+									</div>
 									<div>Step 3</div>
 								</iron-pages>
 						</div>
 						<div class="card-actions">
 							<paper-stepper selected="{{selected}}">
-								<paper-step></paper-step>
-								<paper-step></paper-step>
-								<paper-step></paper-step>
+								<paper-step class="step-label">Setup</paper-step>
+								<paper-step class="step-label">Players</paper-step>
+								<paper-step class="step-label">Create</paper-step>
 							</paper-stepper>
 						</div>
 					</paper-card>
 			</div>
 		</template>
 
-	</template>
-	<script>
-		Polymer({
-			is: 'nubs-game',
-			properties:{
-				active:{
-					type: Boolean,
-					value: false,
-					reflectToAttribute: true
-				},
-				gameDb:{
-					type: Object,
-					observer: 'readGameDb'
-				}
-			},
-			readGameDb: function(n,o){
-			}
-		});
-	</script>
+		</template>
+		<script>
+				Polymer({
+						is: 'nubs-game',
+						properties: {
+								active: {
+										type: Boolean,
+										value: false,
+										reflectToAttribute: true
+								},
+								game:{
+									type: Object,
+									observer: 'readFb'
+								}
+						},
+						_getGame: function(e){
+							console.log(e);
+							var self = this;
+							firebase.database().ref(e.detail).once('value').then(function(snapshot) {
+								self.set("game", snapshot.val());
+							});
+						},
+						readFb: function(n, o) {
+								console.log(n);
+						},
+						_getDate: function(timestamp) {
+								var date = new Date(timestamp);
+								var seconds = Math.floor((new Date() - date) / 1000);
+								if (seconds < 3600) {
+										var minutes = Math.floor(seconds / 60)
+										return (minutes > 1) ? minutes + " minutes ago" : "1 minute ago";
+								} else if (seconds < 86400) {
+										var hours = Math.floor(seconds / 3600)
+										return (hours > 1) ? hours + " hours ago" : "1 hour ago";
+								} else {
+										var day = date.getDate();
+										var monthIndex = date.getMonth();
+										var year = date.getFullYear();
+										return day + ' ' + monthNames[monthIndex] + ' ' + year;
+								}
+						}
+				});
+		</script>
 </dom-module>
