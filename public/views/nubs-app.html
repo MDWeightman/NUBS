@@ -21,10 +21,13 @@
 			}
 			main{
 				width: 100%;
+				height: calc(100% - 65px);
+				overflow: auto;
 				margin: 0 auto;
 			}
 
 		</style>
+
 		<firebase-app 
 			auth-domain="nubs-25474.firebaseapp.com"
 			database-url="https://nubs-25474.firebaseio.com/"
@@ -36,22 +39,12 @@
 			provider="facebook"
 			status-known="{{statusKnown}}">
 		</firebase-auth>
-
-
-		<app-location route="{{route}}" use-hash-as-path></app-location>
-		<app-route route="{{route}}"
-							 pattern="/:page"
-							 data="{{pageData}}"
-							 tail="{{pageTail}}"
-							 query-params="{{queryParams}}"></app-route>
-
-
 		<app-header fixed>
-			<nubs-toolbar user="{{user}}" uid="[[user.uid]]" route="{{pageData}}" tail="{{pageTail}}"></nubs-toolbar>
+			<nubs-toolbar id="nubs-toolbar"></nubs-toolbar>
 		</app-header>
 
-		<main>
-			<nubs-pages user="{{user}}" uid="[[user.uid]]" route="{{route}}"></nubs-pages>
+		<main id="main-content">
+			<!--<nubs-pages user="{{user}}" uid="[[user.uid]]" route="{{route}}"></nubs-pages>-->
 		</main>		
 		
 		
@@ -69,11 +62,6 @@
 								if (!this.route.path) {
 										this.set('route.path', '#/games/list');
 								}
-						},
-						ready: function() {
-								this.$.facebookAuth.auth.onAuthStateChanged(function(user) {
-										console.log(user);
-								}.bind(this));
 						},
 						_updateScroll: function() {
 								window.scroll(0, 0);

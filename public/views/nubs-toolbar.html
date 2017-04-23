@@ -12,12 +12,7 @@
 		<app-toolbar>
 			
 			<paper-icon-button icon="menu" onclick="drawer.toggle()"></paper-icon-button>
-				<div main-title>
-					<iron-pages attr-for-selected="name" selected="{{route.page}}">
-						<div name="games">Game Lsit</div>
-						<div name="game">Game - </div>
-					</iron-pages>
-				</div>
+				<div main-title>[[title]]</div>
 			<nubs-toolbar-login user="{{user}}"></nubs-toolbar-login>
 		</app-toolbar>
 
@@ -29,10 +24,7 @@
 						properties: {
 							title: {
 									type: Object,
-									value: 'NUBS'
-							},
-							gameName: {
-									type: String
+									value: ''
 							}
 						},
 						setTitle: function(value){

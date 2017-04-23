@@ -5,7 +5,7 @@
 		<title>NUBS App</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-		<link rel="import" href="nubs-app.html">
+		<link rel="import" href="views/nubs-app.html">
 
 		<style>
 				body {
@@ -19,6 +19,26 @@
 
 		<nubs-app></nubs-app>
 
+		<!--<script src="https://www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+		<script>
+			// Initialize Firebase
+			var config = {
+				apiKey: "AIzaSyBItAyW3tMMZiqunfq_4RLGyT42DPYafHU",
+				authDomain: "nubs-25474.firebaseapp.com",
+				databaseURL: "https://nubs-25474.firebaseio.com",
+				projectId: "nubs-25474",
+				storageBucket: "nubs-25474.appspot.com",
+				messagingSenderId: "243967935673"
+			};
+			firebase.initializeApp(config);
+		</script>-->
+
+
+
+		<script src="js/Application.js"></script>
+		<script src="js/User.js"></script>
+		<script src="js/FirebaseHelper.js"></script>
+
 		<!--
 		<script src="https://www.gstatic.com/firebasejs/3.7.5/firebase.js"></script>
 		<script src="https://www.gstatic.com/firebasejs/3.7.4/firebase-app.js"></script>
@@ -28,19 +48,15 @@
 		-->
 		<!--<script src="app.js"></script>-->
 
-		<!--<script src="//connect.facebook.net/en_US/sdk.js"></script>-->
-		<!--
+		<script src="//connect.facebook.net/en_US/sdk.js"></script>
 		<script>
-		// FB.init({
-		//     appId: '1758235390857038',
-		//     status: true,
-		//     xfbml: true,
-		//     version: 'v2.8'
-		// });
-
-		// FB.Event.subscribe('auth.authResponseChange', App.checkLoginState);
+			FB.init({
+					appId: '1758235390857038',
+					status: true,
+					xfbml: true,
+					version: 'v2.9'
+			});
 		</script>
-		-->
 
 </body>
 

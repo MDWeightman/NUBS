@@ -1,0 +1,97 @@
+<dom-module id="nubs-games-list">
+	<template>
+		<style>
+      :host {
+        display: block;
+      }
+			.card-container{
+				width: calc(100% - 5%);
+				margin: 0 auto;
+				display: flex;
+				flex-direction: row;
+    		flex-wrap:wrap;
+			}
+			paper-card{
+				display: inline-block;
+    		margin:10px 5px 0 5px;
+				flex-grow: 1;
+    		width: calc(100% * (1/2) - 10px - 1px);
+				max-width: calc(50%  - 10px - 1px);
+			}
+  		.game-header { @apply(--paper-font-headline); }
+  		.game-light { color: var(--paper-grey-600); }
+			.game-played {
+				float: right;
+				font-size: 15px;
+				vertical-align: middle;
+			}
+
+			a{ 
+				text-decoration: none;
+			}
+			ul{
+				list-style: none;
+				margin: 0px;
+				padding: 0px;
+			}
+			li{
+				margin: 0px;
+				padding: 0px 10px;
+			}
+  		paper-button { color: #911eb3;text-decoration: none; float: right }
+
+			paper-fab{
+				position: absolute;
+				bottom: 10px;
+				right: 10px; 
+			}
+		</style>
+
+		<paper-fab icon="add" title="Create New Game"></paper-fab>
+		<div>
+			<iron-selector>
+				<div class="card-container">
+					<template is="dom-repeat" items="[[gamesList]]" as="game">
+							<paper-card>
+								<div class="card-content">
+									<div class="game-header">[[game.name]]
+										<div class="game-played game-light">
+											<iron-icon icon="av:play-arrow"></iron-icon>
+											<span>[[game.played]]</span>
+										</div>
+									</div>								
+      						<p>[[game.description]]</p>
+								</div>
+								<div class="card-actions">
+									<paper-button data-gamekey$="[[game.key]]" on-tap="startNewGame">Start New</paper-button>
+									<paper-button>Results</paper-button>
+								</div>
+							</paper-card>
+					</template>
+				</div>
+      </iron-selector>
+			
+			<!--<paper-button raised on-tap="notify">Notify</paper-button>-->
+			
+		</div>
+
+	</template>
+	<script>
+		Polymer({
+			is: 'nubs-games-list',
+			properties:{
+				gamesList: {
+					type: Array
+				}
+			},
+			startNewGame: function(event){
+				var gameKey = event.target.dataset.gamekey;
+				Screen_NewGameInstance.setGameKey(gameKey);
+				Application.Screen.set(Screen_NewGameInstance);
+			},
+			notify: function(){
+				FirebaseHelper.notifyFaceBookUser();
+			}
+		});
+	</script>
+</dom-module>

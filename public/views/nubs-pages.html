@@ -1,6 +1,5 @@
 <link rel="import" href="nubs-games-list.html" />
 <link rel="import" href="nubs-game.html" />
-<link rel="import" href="firebase-helper.html">
 <dom-module id="nubs-pages">
 	<template>
 		<style>
@@ -26,9 +25,6 @@
 	<script>
 		Polymer({
 			is: 'nubs-pages',
-			behaviors: [
-				Polymer.FirebaseHelper
-			],
 			ready: function(){
 				//this._firebaseGetGames()
 			},

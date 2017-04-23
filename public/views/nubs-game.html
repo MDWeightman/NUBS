@@ -1,0 +1,306 @@
+<dom-module id="nubs-game">
+		<template>
+		<style>
+			:host {
+				display: block;
+			}
+			.card-container{
+				width: calc(100% - 5%);
+				margin: 0 auto;
+				display: flex;
+				flex-direction: row;
+    		flex-wrap:wrap;
+			}
+			.step-label{
+				color: #dddddd;
+				margin: 0px 10px;
+			}
+			.step-label.iron-selected{
+				color: #911eb3;
+			}
+			paper-card{
+				display: inline-block;
+    		margin:10px 0 0 0;
+				flex-grow: 1;
+    		width: calc(100% 10px - 1px);
+			}
+			paper-card.player-card{
+				display: block;
+    		margin:0 0 0 0;
+    		width: 100%;
+   			background-color: transparent;
+			}
+			
+			paper-card.player-card.list-header{
+				background-color: #dddddd;
+				color: #212121;
+				border-radius: 0px;
+				box-shadow: none;
+				text-align: center;
+			}
+			.player-card-container.male{
+				background-color: #636bd8;
+				color: #ffffff;
+			}
+			.player-card-container.female{
+				background-color: #d863c9;
+				color: #ffffff;
+			}
+
+
+			paper-input{
+				width: 150px;
+			}
+			paper-slider{
+				width: 100%;
+			}
+
+  		.game-header { @apply(--paper-font-headline); }
+      .horizontal {
+        @apply(--layout-horizontal);
+      }
+      .vertical {
+        @apply(--layout-vertical);
+      }
+
+			.gameData{
+				width: calc(100% - 40px);
+				margin: 0px 20px 0px 20px;
+			}
+			.dataInput{
+				width: calc(100% - 100px);
+				margin: 0px 50px 0px 50px;
+			}
+			.caption {
+				padding-left: 12px;
+				color: #a0a0a0;
+			}
+
+
+			.players-container{
+				height: 300px;
+				min-height: 300px;
+				background-color: #dddddd;
+				vertical-align: top;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			.player-card-container *{
+				cursor: grabbing !important;
+			}
+
+			.sortableColumn{
+				display: inline-block;
+				height: 100%;
+				vertical-align: top;
+				flex: 1
+			}
+			.sortableColumn.VS{
+				width: 50px;
+    		flex: 0;
+				display: flex;
+				align-items: center;
+			}
+			.ghost {
+				opacity: .5;
+				background: #C8EBFB;
+			}
+			.avatar {
+				border-radius: 50%;
+				width: 30px;
+				height: 30px;
+				vertical-align: top;
+				margin-right: 16px;
+				display: inline-block; 
+			}
+			.player-info {
+				display: inline-block; 
+			}
+		</style>
+
+			<paper-stepper progress-bar no-buttons selected="{{selected}}">
+				<paper-step></paper-step>
+				<paper-step></paper-step>
+				<paper-step></paper-step>
+			</paper-stepper>
+			<div class="card-container">
+					<paper-card>
+						<div class="card-content">
+							<div class="game-header">[[game.name]]</div>
+								<iron-pages selected="[[selected]]">
+									<div>
+										<p>
+											<div>Players: <span class="caption">[[game.players]]</span></div>
+										</p>
+										<p>
+											<div>Game Data Between Players:</div>
+										</p>
+										<div class="gameData">	
+											<template is="dom-repeat" items="[[game.data]]" as="data">
+												<template is="dom-if" if="{{data.type == 'RANGE'}}">
+													<div>[[data.name]]: <span class="caption"></span></div>
+														<div class="dataInput">															
+															<paper-input label="Minimum" value="{{data.min}}"></paper-input>
+															<paper-input label="Maximun" value="{{data.max}}"></paper-input>
+															<paper-input label="Default Value" value="{{data.default}}"></paper-input>
+															
+															<div>Preview</div>
+															<paper-slider id="[[data.key]]" pin snaps min="[[data.min]]" max="[[data.max]]" step="1" value="{{data.default}}" editable></paper-slider>
+														</div>
+													</template>
+												</template>
+											</div>
+									</div>
+									<div>
+										<p>
+											<div>Organise Players :</div>
+										</p>
+										<div class="players-container">
+											<div id="playerAList" class="sortableColumn">	
+												<div class="player-card-header">												
+													<paper-card class="player-card list-header">
+														<div class="card-content">
+															<div class="player-name">Player A</div>
+														</div>
+													</paper-card>
+												</div>	
+												<template is="dom-repeat" items="{{playersA}}" as="player">
+													<div class$="player-card-container [[player.gender]]">											
+														<paper-card class="player-card">
+															<div class="card-content">
+																<img class="avatar" src="[[player.photoUrl]]"/>
+																<div class="player-info">
+																	<div class="player-name">[[player.name]]</div>
+																	<div class="player-age">{{_calculateAge(player.birthday)}}</div>
+																	<!--<div class="player-gender">[[player.gender]]</div>-->
+																</div>
+															</div>
+														</paper-card>
+													</div>
+												</template>
+											</div>
+											<div id="playerVsList" class="sortableColumn VS">												
+												<div class="player-card-header">												
+													<paper-card class="player-card list-header">
+														<div class="card-content">
+															<div class="player-name">VS</div>
+														</div>
+													</paper-card>
+												</div>
+											</div>
+											<div id="playerBList" class="sortableColumn">
+												<div class="player-card-header">												
+													<paper-card class="player-card list-header">
+														<div class="card-content">
+															<div class="player-name">Player B</div>
+														</div>
+													</paper-card>
+												</div>
+												<template is="dom-repeat" items="{{playersB}}" as="player">
+													<div class$="player-card-container [[player.gender]]">												
+														<paper-card class="player-card">
+															<div class="card-content ">
+																<img class="avatar" src="[[player.photoUrl]]"/>
+																<div class="player-info">
+																	<div class="player-name">[[player.name]]</div>
+																	<div class="player-age">{{_calculateAge(player.birthday)}}</div>
+																	<!--<div class="player-gender">[[player.gender]]</div>-->
+																</div>
+															</div>
+														</paper-card>
+													</div>
+												</template>
+											</div>
+										</div>
+									</div>
+									<div>Step 3</div>
+								</iron-pages>
+						</div>
+						<div class="card-actions">
+							<paper-stepper selected="{{selected}}">
+								<paper-step class="step-label">Setup</paper-step>
+								<paper-step class="step-label">Players</paper-step>
+								<paper-step class="step-label">Create</paper-step>
+							</paper-stepper>
+						</div>
+					</paper-card>
+			</div>
+
+		</template>
+		<script>
+				Polymer({
+						is: 'nubs-game',
+						properties: {
+							game:{
+								type: Object
+							},
+							players:{
+								type: Array,
+								observer: 'createSort'
+							},
+							playersA:{
+								type: Array
+							},
+							playersB:{
+								type: Array
+							}
+						},
+						createSort: function(){
+							this._oddEvenPlayers();					
+							var playerAList = document.getElementById("playerAList");
+							if(playerAList){
+								Sortable.create(playerAList, {
+									animation: 150, // ms, animation speed moving items when sorting, `0` — without animation
+									//handle: ".tile__title", // Restricts sort start click/touch to the specified element
+									draggable: ".player-card-container", // Specifies which items inside the element should be sortable
+									group: "players",
+									ghostClass: 'ghost',
+									onUpdate: function (evt){
+										var item = evt.item;
+										console.log(item);
+									}
+								});
+							}
+
+							var playerBList = document.getElementById("playerBList");
+							if(playerBList){
+								Sortable.create(playerBList, {
+									animation: 150, // ms, animation speed moving items when sorting, `0` — without animation
+									//handle: ".tile__title", // Restricts sort start click/touch to the specified element
+									draggable: ".player-card-container", // Specifies which items inside the element should be sortable
+									group: "players",
+									ghostClass: 'ghost',
+									onUpdate: function (evt){
+										var item = evt.item;
+										console.log(item);
+									}
+								});
+							}
+						},
+						_oddEvenPlayers: function(index){
+							var arrA = [];
+							var arrB = [];
+							if(this.players){
+								for (var i = 0; i<  this.players.length; i++){
+										if ((i+2)%2 ==0) {
+												arrA.push(this.players[i]);
+										}
+										else {
+												arrB.push(this.players[i]);
+										}
+								}
+							}
+							this.playersA = arrA;
+							this.playersB = arrB;
+						},
+						_calculateAge: function(birthday) {
+							var d = new Date().getTime();
+							var bd = new Date(birthday).getTime(); // miliseconds from epoch
+							var diff = d - bd;
+							var dd = new Date(diff);
+    					return Math.abs(dd.getUTCFullYear() - 1970);
+						}
+				});
+		</script>
+</dom-module>

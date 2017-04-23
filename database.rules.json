@@ -33,7 +33,10 @@
 								"admins": {
 										".read": "auth != null",
 										".write": "root.child('authentication').child('admins').child(auth.uid).val() == true"
-								}
+								},
+										".read": "auth != null || root.child('authentication').child('admins').child(auth.uid).val() == true",
+										".write": "auth != null || root.child('authentication').child('admins').child(auth.uid).val() == true"
+								
 						}
 				}
 		}
