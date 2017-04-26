@@ -5,18 +5,28 @@ class _FirebaseHelper{
 	}
 
 	getGamesList(callback){
-			this.database.ref(`game`).once('value', function(snapshot) {
+			FirebaseHelper.database.ref(`game`).once('value', function(snapshot) {
 					callback(FirebaseHelper.objListToArray(snapshot.val()));
 			});
 	}
 	getGame(gameKey, callback){
-			this.database.ref(`game/${gameKey}`).once('value', function(snapshot) {
+			FirebaseHelper.database.ref(`game/${gameKey}`).once('value', function(snapshot) {
+					callback(snapshot.val());
+			});
+	}
+	getUser(uid, callback){
+			FirebaseHelper.database.ref(`authentication/users/${uid}`).once('value', function(snapshot) {
 					callback(snapshot.val());
 			});
 	}
 	getUsers(callback){
-			this.database.ref(`authentication/users`).once('value', function(snapshot) {
+			FirebaseHelper.database.ref(`authentication/users`).once('value', function(snapshot) {
 					callback(FirebaseHelper.objListToArray(snapshot.val()));
+			});
+	}
+	isAdmin(uid, callback){
+			var ref = FirebaseHelper.database.ref('authentication/admins/'+uid).once('value').then(function(snapshot) {
+				callback(snapshot.val());
 			});
 	}
 
@@ -33,15 +43,32 @@ class _FirebaseHelper{
 
 	}
 
+		signIn(){
+				var provider = new firebase.auth.FacebookAuthProvider();
+				provider.addScope('user_birthday');
+				firebase.auth().signInWithPopup(provider).then(function(result) {
+					//User.setAccessToken(result.credential.accessToken);
+					//var user = result.user;
+					User.setUser(result.user);
+					setTimeout(function(){
+						Application.start();
+					},3000);
+				}).catch(function(error) {
+					var errorCode = error.code;
+					var errorMessage = error.message;
+					var email = error.email;
+					var credential = error.credential;
+				});
+		}
 	
-	createuser(){
+	createuser(o){
 			this.database.ref(`authentication/users`).push().set({
-				"birthday":"06/08/1986",
-				"email":"charlotte.f.weightman@gmail.com",
-				"gender":"female",
+				"birthday":o.birthday,
+				"email":o.email,
+				"gender":o.gender,
 				"id":"10154274837596681",
-				"name":"Charlotte Weightman",
-				"picture":"https://scontent-lhr3-1.xx.fbcdn.net/v/t1.0-1/c165.44.550.550/s160x160/625540_10100486035140478_1694508461_n.jpg?oh=60284e04035565f4f2c8629390226174&oe=5991A701",
+				"name":o.name,
+				"photoUrl":"https://scontent-lhr3-1.xx.fbcdn.net/v/t1.0-1/c165.44.550.550/s160x160/625540_10100486035140478_1694508461_n.jpg?oh=60284e04035565f4f2c8629390226174&oe=5991A701",
 				"religion":"Christian",
 				"sessions":{"KhiCGwRjRkWTMczaqwX":"B"},
 			});
@@ -73,36 +100,36 @@ class _FirebaseHelper{
 			}
 	}
 
-	checkLoginState(event) {
-  if (event.authResponse) {
-    // User is signed-in Facebook.
-    var unsubscribe = firebase.auth().onAuthStateChanged(function(firebaseUser) {
-      unsubscribe();
-      // Check if we are already signed-in Firebase with the correct user.
-      if (!isUserEqual(event.authResponse, firebaseUser)) {
-        // Build Firebase credential with the Facebook auth token.
-        var credential = firebase.auth.FacebookAuthProvider.credential(
-            event.authResponse.accessToken);
-        // Sign in with the credential from the Facebook user.
-        firebase.auth().signInWithCredential(credential).catch(function(error) {
-          // Handle Errors here.
-          var errorCode = error.code;
-          var errorMessage = error.message;
-          // The email of the user's account used.
-          var email = error.email;
-          // The firebase.auth.AuthCredential type that was used.
-          var credential = error.credential;
-          // ...
-        });
-      } else {
-        // User is already signed-in Firebase with the correct user.
-      }
-    });
-  } else {
-    // User is signed-out of Facebook.
-    firebase.auth().signOut();
-  }
-}
+	// checkLoginState(event) {
+	// 	if (event.authResponse) {
+	// 		// User is signed-in Facebook.
+	// 		var unsubscribe = firebase.auth().onAuthStateChanged(function(firebaseUser) {
+	// 			unsubscribe();
+	// 			// Check if we are already signed-in Firebase with the correct user.
+	// 			if (!isUserEqual(event.authResponse, firebaseUser)) {
+	// 				// Build Firebase credential with the Facebook auth token.
+	// 				var credential = firebase.auth.FacebookAuthProvider.credential(
+	// 						event.authResponse.accessToken);
+	// 				// Sign in with the credential from the Facebook user.
+	// 				firebase.auth().signInWithCredential(credential).catch(function(error) {
+	// 					// Handle Errors here.
+	// 					var errorCode = error.code;
+	// 					var errorMessage = error.message;
+	// 					// The email of the user's account used.
+	// 					var email = error.email;
+	// 					// The firebase.auth.AuthCredential type that was used.
+	// 					var credential = error.credential;
+	// 					// ...
+	// 				});
+	// 			} else {
+	// 				// User is already signed-in Firebase with the correct user.
+	// 			}
+	// 		});
+	// 	} else {
+	// 		// User is signed-out of Facebook.
+	// 		firebase.auth().signOut();
+	// 	}
+	// }
 
 }
 
@@ -110,9 +137,6 @@ var FirebaseHelper = new _FirebaseHelper();
 
 firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
-		User.setUid(user.providerData[0].uid);
-    user.getToken().then(function(data) {
-      User.setAccessToken(data);
-    });
+		User.setUser(user);
   }
 });

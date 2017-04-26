@@ -1,5 +1,5 @@
 <dom-module id="nubs-game">
-		<template>
+	<template>
 		<style>
 			:host {
 				display: block;
@@ -9,7 +9,7 @@
 				margin: 0 auto;
 				display: flex;
 				flex-direction: row;
-    		flex-wrap:wrap;
+    			flex-wrap:wrap;
 			}
 			.step-label{
 				color: #dddddd;
@@ -20,15 +20,15 @@
 			}
 			paper-card{
 				display: inline-block;
-    		margin:10px 0 0 0;
+				margin:10px 0 0 0;
 				flex-grow: 1;
-    		width: calc(100% 10px - 1px);
+				width: calc(100% 10px - 1px);
 			}
 			paper-card.player-card{
 				display: block;
-    		margin:0 0 0 0;
-    		width: 100%;
-   			background-color: transparent;
+				margin:0 0 0 0;
+				width: 100%;
+				background-color: transparent;
 			}
 			
 			paper-card.player-card.list-header{
@@ -47,6 +47,17 @@
 				color: #ffffff;
 			}
 
+			.badge{
+				min-width: 22px;
+				height: 22px;
+				line-height: 22px;
+				font-size: 12px;
+				border-radius: 50%;
+				background-color: #bfbfbf;
+				color: #212121;
+				display: inline-block;
+				vertical-align: top;
+			}
 
 			paper-input{
 				width: 150px;
@@ -55,13 +66,9 @@
 				width: 100%;
 			}
 
-  		.game-header { @apply(--paper-font-headline); }
-      .horizontal {
-        @apply(--layout-horizontal);
-      }
-      .vertical {
-        @apply(--layout-vertical);
-      }
+			.game-header { @apply(--paper-font-headline); }
+			.horizontal { @apply(--layout-horizontal); }
+			.vertical {	@apply(--layout-vertical); }
 
 			.gameData{
 				width: calc(100% - 40px);
@@ -75,8 +82,6 @@
 				padding-left: 12px;
 				color: #a0a0a0;
 			}
-
-
 			.players-container{
 				height: 300px;
 				min-height: 300px;
@@ -89,7 +94,6 @@
 			.player-card-container *{
 				cursor: grabbing !important;
 			}
-
 			.sortableColumn{
 				display: inline-block;
 				height: 100%;
@@ -97,8 +101,8 @@
 				flex: 1
 			}
 			.sortableColumn.VS{
-				width: 50px;
-    		flex: 0;
+				width: 52px;
+    			flex: 0;
 				display: flex;
 				align-items: center;
 			}
@@ -110,6 +114,7 @@
 				border-radius: 50%;
 				width: 30px;
 				height: 30px;
+				border: solid 2px #ffffff;
 				vertical-align: top;
 				margin-right: 16px;
 				display: inline-block; 
@@ -157,11 +162,14 @@
 											<div>Organise Players :</div>
 										</p>
 										<div class="players-container">
-											<div id="playerAList" class="sortableColumn">	
+											<div id="playerAList" data-list="A" class="sortableColumn">	
 												<div class="player-card-header">												
 													<paper-card class="player-card list-header">
 														<div class="card-content">
-															<div class="player-name">Player A</div>
+															<div id="playersA" class="player-name">
+																<span style="line-height: 20px;	font-size: 20px;color: #212121;">Player A</span>
+																<div class="badge" for="playersA">[[playersA.length]]</div>
+															</div>
 														</div>
 													</paper-card>
 												</div>	
@@ -173,7 +181,6 @@
 																<div class="player-info">
 																	<div class="player-name">[[player.name]]</div>
 																	<div class="player-age">{{_calculateAge(player.birthday)}}</div>
-																	<!--<div class="player-gender">[[player.gender]]</div>-->
 																</div>
 															</div>
 														</paper-card>
@@ -189,11 +196,14 @@
 													</paper-card>
 												</div>
 											</div>
-											<div id="playerBList" class="sortableColumn">
+											<div id="playerBList" data-list="B" class="sortableColumn">
 												<div class="player-card-header">												
 													<paper-card class="player-card list-header">
 														<div class="card-content">
-															<div class="player-name">Player B</div>
+															<div id="playersB" class="player-name">
+																<span style="line-height: 20px;	font-size: 20px;color: #212121;">Player B</span>
+																<div class="badge" for="playersB">[[playersB.length]]</div>
+															</div>
 														</div>
 													</paper-card>
 												</div>
@@ -205,7 +215,6 @@
 																<div class="player-info">
 																	<div class="player-name">[[player.name]]</div>
 																	<div class="player-age">{{_calculateAge(player.birthday)}}</div>
-																	<!--<div class="player-gender">[[player.gender]]</div>-->
 																</div>
 															</div>
 														</paper-card>
@@ -244,21 +253,48 @@
 							},
 							playersB:{
 								type: Array
+							},
+							currentList:{
+								type: String
 							}
 						},
 						createSort: function(){
-							this._oddEvenPlayers();					
+							this._oddEvenPlayers();
+							var self = this;
 							var playerAList = document.getElementById("playerAList");
 							if(playerAList){
 								Sortable.create(playerAList, {
-									animation: 150, // ms, animation speed moving items when sorting, `0` — without animation
-									//handle: ".tile__title", // Restricts sort start click/touch to the specified element
-									draggable: ".player-card-container", // Specifies which items inside the element should be sortable
+									animation: 150, 
+									draggable: ".player-card-container",
 									group: "players",
 									ghostClass: 'ghost',
-									onUpdate: function (evt){
-										var item = evt.item;
-										console.log(item);
+									onStart: function(evt){
+										self.set('currentList', evt.target.dataset.list);
+									},
+									onEnd: function (evt) {
+										var oldList = evt.target.dataset.list;
+										var oldIndex = evt.oldIndex;
+										var newIndex = evt.newIndex;
+										//if(oldList == "A" && self.currentList == oldList){
+											var playersA = self.playersA;
+											var playersB = self.playersB;
+											var i = playersA.splice(oldIndex, 1)[0];
+											playersB.splice(newIndex, 0, i);
+											self.set('playersA', playersA);
+											self.set('playersB', playersB);
+											self.set('playersA.length', playersA.length);
+											self.set('playersB.length', playersB.length);
+										//}
+										// if(oldList == "B"){
+										// 	var playersA = self.playersA;
+										// 	var playersB = self.playersB;
+										// 	var i = playersB.splice(oldIndex, 1)[0];
+										// 	playersA.splice(newIndex, 0, i);
+										// 	self.set('playersA', playersA);
+										// 	self.set('playersB', playersB);
+										// 	self.set('playersA.length', playersA.length);
+										// 	self.set('playersB.length', playersB.length);
+										// }
 									}
 								});
 							}
@@ -266,14 +302,37 @@
 							var playerBList = document.getElementById("playerBList");
 							if(playerBList){
 								Sortable.create(playerBList, {
-									animation: 150, // ms, animation speed moving items when sorting, `0` — without animation
-									//handle: ".tile__title", // Restricts sort start click/touch to the specified element
-									draggable: ".player-card-container", // Specifies which items inside the element should be sortable
+									animation: 150, 
+									draggable: ".player-card-container",
 									group: "players",
 									ghostClass: 'ghost',
-									onUpdate: function (evt){
-										var item = evt.item;
-										console.log(item);
+									onStart: function(evt){
+										self.set('currentList', evt.target.dataset.list);
+									},
+									onEnd: function (evt) {
+										var oldList = evt.target.dataset.list;
+										var oldIndex = evt.oldIndex;
+										var newIndex = evt.newIndex;
+										// if(oldList == "A"){
+										// 	var playersA = self.playersA;
+										// 	var playersB = self.playersB;
+										// 	var i = playersA.splice(oldIndex, 1)[0];
+										// 	playersB.splice(newIndex, 0, i);
+										// 	self.set('playersA', playersA);
+										// 	self.set('playersB', playersB);
+										// 	self.set('playersA.length', playersA.length);
+										// 	self.set('playersB.length', playersB.length);
+										// }
+										if(oldList == "B" && self.currentList == oldList){
+											var playersA = self.playersA;
+											var playersB = self.playersB;
+											var i = playersB.splice(oldIndex, 1)[0];
+											playersA.splice(newIndex, 0, i);
+											self.set('playersA', playersA);
+											self.set('playersB', playersB);
+											self.set('playersA.length', playersA.length);
+											self.set('playersB.length', playersB.length);
+										}
 									}
 								});
 							}
@@ -283,23 +342,23 @@
 							var arrB = [];
 							if(this.players){
 								for (var i = 0; i<  this.players.length; i++){
-										if ((i+2)%2 ==0) {
-												arrA.push(this.players[i]);
-										}
-										else {
-												arrB.push(this.players[i]);
-										}
+									if ((i+2)%2 ==0) {
+										arrA.push(this.players[i]);
+									}
+									else {
+										arrB.push(this.players[i]);
+									}
 								}
 							}
-							this.playersA = arrA;
-							this.playersB = arrB;
+							this.set('playersA', arrA);
+							this.set('playersB', arrB);
 						},
 						_calculateAge: function(birthday) {
 							var d = new Date().getTime();
 							var bd = new Date(birthday).getTime(); // miliseconds from epoch
 							var diff = d - bd;
 							var dd = new Date(diff);
-    					return Math.abs(dd.getUTCFullYear() - 1970);
+    						return Math.abs(dd.getUTCFullYear() - 1970);
 						}
 				});
 		</script>

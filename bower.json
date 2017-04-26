@@ -41,6 +41,9 @@
     "app-storage": "PolymerElements/app-storage#^1.0.0",
     "iron-signals": "PolymerElements/iron-signals#^1.0.3",
     "paper-slider": "PolymerElements/paper-slider#^1.0.15",
-    "polymer-sortablejs": "^0.1.3"
+    "polymer-sortablejs": "^0.1.3",
+    "paper-spinner": "PolymerElements/paper-spinner#^1.2.1",
+    "social-links": "convoo/social-links#^0.0.2",
+    "paper-badge": "PolymerElements/paper-badge#^1.1.4"
   }
 }

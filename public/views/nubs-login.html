@@ -1,47 +1,53 @@
 <dom-module id="nubs-login">
-		<template>
+	<template>
 		<style>
+			#login-full-page{				
+				background-color: var(--app-primary-color); 
+				width: 100%;
+				height: calc(100%);
+				overflow: hidden;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+			}
+			facebook-link{
+				border: 1px solid #ffffff;
+				padding: 5px;
+				border-radius: 5px;
+				width: 50px;
+				height: 50px;
+			}
+			paper-button{
+				margin: 10px 0px 0px 0px;
+				background-color: #ffffff;
+			}
 		</style>
 
-		<template is="dom-if" if="[[user]]">
-				<paper-drawer-title 
-						photo="[[user.photo]]" 
-						name="[[user.displayName]]" 
-						email="[[user.email]]" 
-						style="background-color:#4285f4;color:#ffffff;">
-				</paper-drawer-title>
-				<paper-drawer-subheader>Items with icon</paper-drawer-subheader>
-				<paper-drawer-icon-item icon="icons:history">Played Games</paper-drawer-icon-item>
-				<paper-drawer-icon-item icon="account-circle">Users</paper-drawer-icon-item>
-		</template>
+		<firebase-auth 
+			id="facebookAuth" 
+			user="{{user}}"
+			provider="facebook"
+			status-known="{{statusKnown}}">
+		</firebase-auth>
+		<div id="login-full-page">
+			<facebook-link height="50px" color="white"></facebook-link>
+			<paper-button raised on-tap="login">Sign in</paper-button>
+		</div>
+	</template>
 
-
-		<paper-button raised on-tap="login" hidden$="[[user]]">Sign in</paper-button>
-		<paper-button raised on-tap="logout" hidden$="[[!user]]">Sign out</paper-button>
-
-		</template>
-
-		<script>
-				Polymer({
-						is: 'nubs-login',
-						properties: {
-								user: {
-										type: Object
-								},
-								userData: {
-										type: Object
-								},
-								statusKnown: {
-										type: Object
-								}
-						},
-						login: function() {
-								return this.$.auth.signInWithPopup();
-						},
-						logout: function() {
-								return this.$.auth.signOut();
-						}
-				})
-		</script>
+	<script>
+		Polymer({
+			is: 'nubs-login',
+			properties: {
+				user: {
+					type: Object
+				}
+			},
+			login: function() {
+				FirebaseHelper.signIn();
+			}
+		})
+	</script>
 
 </dom-module>

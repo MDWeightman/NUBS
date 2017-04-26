@@ -1,6 +1,7 @@
 <link rel="import" href="imports.html" />
 <link rel="import" href="nubs-toolbar.html" />
 <link rel="import" href="nubs-drawer.html" />
+<link rel="import" href="nubs-login.html" />
 <link rel="import" href="nubs-pages.html" />
 <dom-module id="nubs-app">
 		<template>
@@ -15,15 +16,27 @@
 				top:0;
 				right:0;
 				bottom:0;
-				
-        --app-primary-color: #911eb3;  /* purple */
-        --app-secondary-text-color: #B966D1;
+						
+				--app-primary-color: #911eb3;  /* purple */
+				--app-secondary-text-color: #B966D1;
 			}
 			main{
 				width: 100%;
 				height: calc(100% - 65px);
 				overflow: auto;
 				margin: 0 auto;
+			}
+			#spinner-contianer{
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				background-color: var(--app-primary-color); 
+			}
+			paper-spinner {
+				--paper-spinner-color: #ffffff;
 			}
 
 		</style>
@@ -44,7 +57,9 @@
 		</app-header>
 
 		<main id="main-content">
-			<!--<nubs-pages user="{{user}}" uid="[[user.uid]]" route="{{route}}"></nubs-pages>-->
+			<div id="spinner-contianer">
+				<paper-spinner active></paper-spinner>
+			</div>
 		</main>		
 		
 		
@@ -53,22 +68,14 @@
 	</template>
 
 		<script>
-				Polymer({
-						is: 'nubs-app',
-						observers: [
-								'_updateScroll(route)'
-						],
-						attatched: function() {
-								if (!this.route.path) {
-										this.set('route.path', '#/games/list');
-								}
-						},
-						_updateScroll: function() {
-								window.scroll(0, 0);
-						},
-						login: function() {
-								this.$.googleAuth.signInWithPopup();
-						}
-				})
+			Polymer({
+				is: 'nubs-app',
+				observers: [
+					'_updateScroll(route)'
+				],
+				_updateScroll: function() {
+					window.scroll(0, 0);
+				}
+			})
 		</script>
 </dom-module>

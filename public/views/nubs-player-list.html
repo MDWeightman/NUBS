@@ -1,0 +1,180 @@
+<dom-module id="nubs-player-list">
+	<template>
+		<style>
+			:host {
+				display: block;
+			}
+			.card-container{
+				width: calc(100% - 5%);
+				margin: 0 auto;
+				display: flex;
+				flex-direction: row;
+    			flex-wrap:wrap;
+			}
+			.step-label{
+				color: #dddddd;
+				margin: 0px 10px;
+			}
+			.step-label.iron-selected{
+				color: #911eb3;
+			}
+			paper-card{
+				display: inline-block;
+				margin:10px 0 0 0;
+				flex-grow: 1;
+				width: calc(100% 10px - 1px);
+			}
+			paper-card.player-card{
+				display: block;
+				margin:0 0 0 0;
+				width: 100%;
+				background-color: transparent;
+			}
+			
+			paper-card.player-card.list-header{
+				background-color: #dddddd;
+				color: #212121;
+				border-radius: 0px;
+				box-shadow: none;
+				text-align: center;
+			}
+			.player-card-container.male{
+				background-color: #636bd8;
+				color: #ffffff;
+			}
+			.player-card-container.female{
+				background-color: #d863c9;
+				color: #ffffff;
+			}
+
+			.badge{
+				min-width: 22px;
+				height: 22px;
+				line-height: 22px;
+				font-size: 12px;
+				border-radius: 50%;
+				background-color: #bfbfbf;
+				color: #212121;
+				display: inline-block;
+				vertical-align: top;
+			}
+
+			paper-input{
+				width: 150px;
+			}
+			paper-slider{
+				width: 100%;
+			}
+
+			.game-header { @apply(--paper-font-headline); }
+			.horizontal { @apply(--layout-horizontal); }
+			.vertical {	@apply(--layout-vertical); }
+
+			.gameData{
+				width: calc(100% - 40px);
+				margin: 0px 20px 0px 20px;
+			}
+			.dataInput{
+				width: calc(100% - 100px);
+				margin: 0px 50px 0px 50px;
+			}
+			.caption {
+				padding-left: 12px;
+				color: #a0a0a0;
+			}
+			.players-container{
+				height: 300px;
+				min-height: 300px;
+				background-color: #dddddd;
+				vertical-align: top;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			.player-card-container *{
+				cursor: grabbing !important;
+			}
+			.sortableColumn{
+				display: inline-block;
+				height: 100%;
+				vertical-align: top;
+				flex: 1
+			}
+			.sortableColumn.VS{
+				width: 50px;
+    		flex: 0;
+				display: flex;
+				align-items: center;
+			}
+			.ghost {
+				opacity: .5;
+				background: #C8EBFB;
+			}
+			.avatar {
+				border-radius: 50%;
+				width: 30px;
+				height: 30px;
+				border: solid 2px #ffffff;
+				vertical-align: top;
+				margin-right: 16px;
+				display: inline-block; 
+			}
+			.player-info {
+				display: inline-block; 
+			}
+		</style>
+
+		<div class="player-card-header">												
+			<paper-card class="player-card list-header">
+				<div class="card-content">
+					<div id="playersB" class="player-name">
+						<span style="line-height: 20px;	font-size: 20px;color: #212121;">[[columnName]]</span>
+						<div class="badge" for="playersB">[[players.length]]</div>
+					</div>
+				</div>
+			</paper-card>
+		</div>
+		<template is="dom-repeat" items="{{players}}" as="player">
+			<div class$="player-card-container [[player.gender]]">												
+				<paper-card class="player-card">
+					<div class="card-content ">
+						<img class="avatar" src="[[player.photoUrl]]"/>
+						<div class="player-info">
+							<div class="player-name">[[player.name]]</div>
+							<div class="player-age">{{_calculateAge(player.birthday)}}</div>
+						</div>
+					</div>
+				</paper-card>
+			</div>
+		</template>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'nubs-player-list',
+			properties:{
+				players:{
+					type: Array,
+        			notify: true
+				},
+				columnName:{
+					type: String,
+					notify: true,
+					value: "TEST",
+					observer: 'log'
+				}
+			},
+			log: function(n,o){
+				console.log(n);
+			},
+			_calculateAge: function(birthday) {
+				var d = new Date().getTime();
+				var bd = new Date(birthday).getTime(); // miliseconds from epoch
+				var diff = d - bd;
+				var dd = new Date(diff);
+				return Math.abs(dd.getUTCFullYear() - 1970);
+			}
+		})
+	</script>
+
+</dom-module>

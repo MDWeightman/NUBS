@@ -7,7 +7,12 @@ class _Application{
 	}
 
 	start(){
-		this.Screen.set(Screen_GamesList);
+		if(User.admin){
+			this.Screen.set(Screen_GamesList);
+		}
+		else if(!User.uid){
+			this.Screen.set(Screen_Login);
+		}
 	}
 
 }
@@ -15,4 +20,4 @@ class _Application{
 var Application = new _Application();
 setTimeout(function(){
 	Application.start();
-},400);
+},3000);

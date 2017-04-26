@@ -1,0 +1,47 @@
+<dom-module id="nubs-drawer-login">
+		<template>
+		<style>
+			paper-drawer-title { 
+				background-color: var(--app-primary-color); 
+				color:#ffffff;
+			}
+		</style>
+
+		<template is="dom-if" if="[[user]]">
+				<paper-drawer-title 
+						photo="[[user.photoUrl]]" 
+						name="[[user.name]]" 
+						email="[[user.email]]">
+				</paper-drawer-title>
+		</template>
+
+<!--
+		<paper-button raised on-tap="login" hidden$="[[user]]">Sign in</paper-button>
+		<paper-button raised on-tap="logout" hidden$="[[!user]]">Sign out</paper-button>-->
+
+		</template>
+
+		<script>
+				Polymer({
+						is: 'nubs-drawer-login',
+						properties: {
+								user: {
+										type: Object
+								},
+								userData: {
+										type: Object
+								},
+								statusKnown: {
+										type: Object
+								}
+						},
+						login: function() {
+								return this.$.auth.signInWithPopup();
+						},
+						logout: function() {
+								return this.$.auth.signOut();
+						}
+				})
+		</script>
+
+</dom-module>

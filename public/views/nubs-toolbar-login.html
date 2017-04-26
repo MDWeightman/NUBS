@@ -27,15 +27,15 @@
 
 			<template is="dom-if" if="[[!user]]">			
 				<div id="createChannelButton" class="userInfo">
-					<paper-icon-button icon="icons:account-circle" class="avatar"></paper-icon-button>
 					<paper-button on-tap="login" hidden$="[[offline]]">Sign In</paper-button>
+					<!--<paper-icon-button icon="icons:account-circle" class="avatar"></paper-icon-button>-->
 				</div>
 			</template>
 
 			<template is="dom-if" if="[[user]]">	
 				<div id="createChannelButton" class="userInfo">
-					<img class="avatar" src="[[user.photoURL]]">
 					<paper-button on-tap="logout" hidden$="[[offline]]">Sign Out</paper-button>
+					<img class="avatar" src="[[user.photoURL]]">
 				</div>
 			</template>
 		</template>
@@ -55,17 +55,7 @@
 								}
 						},
 						login: function() {
-							var provider = new firebase.auth.FacebookAuthProvider();
-							provider.addScope('user_birthday');
-							firebase.auth().signInWithPopup(provider).then(function(result) {
-								User.setAccessToken(result.credential.accessToken);
-								var user = result.user;
-							}).catch(function(error) {
-								var errorCode = error.code;
-								var errorMessage = error.message;
-								var email = error.email;
-								var credential = error.credential;
-							});
+							FirebaseHelper.signIn();
 						},
 						logout: function() {
 							return this.$.facebookAuth.signOut();

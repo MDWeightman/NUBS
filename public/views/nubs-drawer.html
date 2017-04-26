@@ -1,4 +1,4 @@
-<link rel="import" href="nubs-login.html" />
+<link rel="import" href="nubs-drawer-login.html" />
 <dom-module id="nubs-drawer">
 		<style>
 				:host {
@@ -9,7 +9,11 @@
 		<template>        
 			<app-drawer id="drawer" swipe-open>
 				<paper-drawer-panel>
-					<nubs-login></nubs-login>
+					<nubs-login id="nubs-login"></nubs-login>
+						
+					<!--<paper-drawer-subheader>Items with icon</paper-drawer-subheader>-->
+					<paper-drawer-icon-item icon="icons:history">Played Games</paper-drawer-icon-item>
+					<paper-drawer-icon-item icon="account-circle">Users</paper-drawer-icon-item>
 				</paper-drawer-panel>            
 			</app-drawer>
 		</template>
