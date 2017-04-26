@@ -174,7 +174,7 @@
 													</paper-card>
 												</div>	
 												<template is="dom-repeat" items="{{playersA}}" as="player">
-													<div class$="player-card-container [[player.gender]]">											
+													<div class$="player-card-container [[player.gender]]" data-col="A">											
 														<paper-card class="player-card">
 															<div class="card-content">
 																<img class="avatar" src="[[player.photoUrl]]"/>
@@ -208,7 +208,7 @@
 													</paper-card>
 												</div>
 												<template is="dom-repeat" items="{{playersB}}" as="player">
-													<div class$="player-card-container [[player.gender]]">												
+													<div class$="player-card-container [[player.gender]]" data-col="B">												
 														<paper-card class="player-card">
 															<div class="card-content ">
 																<img class="avatar" src="[[player.photoUrl]]"/>
@@ -268,33 +268,8 @@
 									draggable: ".player-card-container",
 									group: "players",
 									ghostClass: 'ghost',
-									onStart: function(evt){
-										self.set('currentList', evt.target.dataset.list);
-									},
 									onEnd: function (evt) {
-										var oldList = evt.target.dataset.list;
-										var oldIndex = evt.oldIndex;
-										var newIndex = evt.newIndex;
-										//if(oldList == "A" && self.currentList == oldList){
-											var playersA = self.playersA;
-											var playersB = self.playersB;
-											var i = playersA.splice(oldIndex, 1)[0];
-											playersB.splice(newIndex, 0, i);
-											self.set('playersA', playersA);
-											self.set('playersB', playersB);
-											self.set('playersA.length', playersA.length);
-											self.set('playersB.length', playersB.length);
-										//}
-										// if(oldList == "B"){
-										// 	var playersA = self.playersA;
-										// 	var playersB = self.playersB;
-										// 	var i = playersB.splice(oldIndex, 1)[0];
-										// 	playersA.splice(newIndex, 0, i);
-										// 	self.set('playersA', playersA);
-										// 	self.set('playersB', playersB);
-										// 	self.set('playersA.length', playersA.length);
-										// 	self.set('playersB.length', playersB.length);
-										// }
+										self._moveUser(evt, "A");
 									}
 								});
 							}
@@ -306,33 +281,8 @@
 									draggable: ".player-card-container",
 									group: "players",
 									ghostClass: 'ghost',
-									onStart: function(evt){
-										self.set('currentList', evt.target.dataset.list);
-									},
 									onEnd: function (evt) {
-										var oldList = evt.target.dataset.list;
-										var oldIndex = evt.oldIndex;
-										var newIndex = evt.newIndex;
-										// if(oldList == "A"){
-										// 	var playersA = self.playersA;
-										// 	var playersB = self.playersB;
-										// 	var i = playersA.splice(oldIndex, 1)[0];
-										// 	playersB.splice(newIndex, 0, i);
-										// 	self.set('playersA', playersA);
-										// 	self.set('playersB', playersB);
-										// 	self.set('playersA.length', playersA.length);
-										// 	self.set('playersB.length', playersB.length);
-										// }
-										if(oldList == "B" && self.currentList == oldList){
-											var playersA = self.playersA;
-											var playersB = self.playersB;
-											var i = playersB.splice(oldIndex, 1)[0];
-											playersA.splice(newIndex, 0, i);
-											self.set('playersA', playersA);
-											self.set('playersB', playersB);
-											self.set('playersA.length', playersA.length);
-											self.set('playersB.length', playersB.length);
-										}
+										self._moveUser(evt, "B");
 									}
 								});
 							}
@@ -352,6 +302,40 @@
 							}
 							this.set('playersA', arrA);
 							this.set('playersB', arrB);
+						},
+						_moveUser: function(evt, origin){
+							var oldList = evt.target.dataset.list;console.log(evt)
+							var oldIndex = evt.oldIndex;
+							var newIndex = evt.newIndex;
+							var col = evt.item.dataset.col;							
+							var playersA = this.playersA;
+							var playersB = this.playersB;
+							if(origin == col){
+								if(col == "A"){
+									var i = playersA.splice(oldIndex, 1)[0];
+									playersA.splice(newIndex, 0, i);
+								}
+								if(col == "B"){
+									var i = playersB.splice(oldIndex, 1)[0];
+									playersB.splice(newIndex, 0, i);
+								}
+							}
+							else{
+								if(oldList == "A"){
+									var i = playersA.splice(oldIndex, 1)[0];
+									playersB.splice(newIndex, 0, i);
+									evt.item.dataset.col = "B";
+								}
+								if(oldList == "B"){
+									var i = playersB.splice(oldIndex, 1)[0];
+									playersA.splice(newIndex, 0, i);
+									evt.item.dataset.col = "A";
+								}
+							}
+							this.set('playersA', playersA);
+							this.set('playersB', playersB);
+							this.set('playersA.length', playersA.length);
+							this.set('playersB.length', playersB.length);
 						},
 						_calculateAge: function(birthday) {
 							var d = new Date().getTime();

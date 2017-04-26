@@ -139,4 +139,8 @@ firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
 		User.setUser(user);
   }
+	
+	setTimeout(function(){
+		Application.start();
+	},5000);
 });

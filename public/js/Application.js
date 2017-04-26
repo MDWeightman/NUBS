@@ -18,6 +18,3 @@ class _Application{
 }
 
 var Application = new _Application();
-setTimeout(function(){
-	Application.start();
-},3000);
