@@ -39,8 +39,12 @@ class _User{
 		User.getFbUser();
 	}
 	setAppUser(user){
-		document.querySelector("nubs-login").set("user", user);
-		document.querySelector("nubs-toolbar-login").set("user", user);
+		if(document.querySelector("nubs-drawer-login")){
+			document.querySelector("nubs-drawer-login").set("user", user);
+		}
+		if(document.querySelector("nubs-toolbar-login")){		
+			document.querySelector("nubs-toolbar-login").set("user", user);
+		}
 	}
 
 	getFbUser(){		

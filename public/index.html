@@ -17,7 +17,17 @@
 
 <body>
 
-		<nubs-app></nubs-app>
+		<nubs-app></nubs-app>		
+
+		<script src="//connect.facebook.net/en_US/sdk.js"></script>
+		<script>
+			FB.init({
+					appId: '1758235390857038',
+					status: true,
+					xfbml: true,
+					version: 'v2.9'
+			});
+		</script>
 
 		<script src="https://www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
 		<script>
@@ -47,16 +57,6 @@
 		<script src="https://www.gstatic.com/firebasejs/3.7.4/firebase-messaging.js"></script>
 		-->
 		<!--<script src="app.js"></script>-->
-
-		<script src="//connect.facebook.net/en_US/sdk.js"></script>
-		<script>
-			FB.init({
-					appId: '1758235390857038',
-					status: true,
-					xfbml: true,
-					version: 'v2.9'
-			});
-		</script>
 
 </body>
 

@@ -15,7 +15,7 @@ class _Screen_GamesList{
 	}
 
 	setGames(gamesList){
-		Screen_GamesList.container.gamesList = gamesList;
+		Screen_GamesList.container.set('gamesList', gamesList);
 	}
 }
 var Screen_GamesList = new _Screen_GamesList();

@@ -24,11 +24,17 @@
 				flex-grow: 1;
 				width: calc(100% 10px - 1px);
 			}
+
+			paper-card .card-content {
+				padding: 14px;
+			}
 			paper-card.player-card{
 				display: block;
 				margin:0 0 0 0;
 				width: 100%;
 				background-color: transparent;
+				box-shadow: none;
+				border-bottom: 1px solid #dddddd;
 			}
 			
 			paper-card.player-card.list-header{
@@ -58,7 +64,10 @@
 				display: inline-block;
 				vertical-align: top;
 			}
-
+			.badge.error{
+				background-color: #E91E63;
+				color: #ffffff;
+			}
 			paper-input{
 				width: 150px;
 			}
@@ -69,6 +78,15 @@
 			.game-header { @apply(--paper-font-headline); }
 			.horizontal { @apply(--layout-horizontal); }
 			.vertical {	@apply(--layout-vertical); }
+
+			.buttonContainer{
+				margin: 10px 0px;
+			}
+							
+			paper-button.purple {
+				background-color: var(--app-secondary-text-color) !important;
+				color: #ffffff !important;
+			}
 
 			.gameData{
 				width: calc(100% - 40px);
@@ -91,20 +109,40 @@
 				justify-content: center;
 				align-items: center;
 			}
-			.player-card-container *{
-				cursor: grabbing !important;
-			}
 			.sortableColumn{
 				display: inline-block;
 				height: 100%;
 				vertical-align: top;
 				flex: 1
 			}
+			.sortableColumn paper-card{
+				cursor: grab;
+				cursor: -webkit-grab;
+			}
+			.sortableColumn paper-card.chosen{
+				cursor: grabbing;
+				cursor: -webkit-grabbing;
+			}
 			.sortableColumn.VS{
 				width: 52px;
     			flex: 0;
 				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+			}
+
+			.sortableColumn.VS .player-card-header{
+				height: 51px;
+				width: 52px;
+			}
+			
+			.sortableColumn.VS paper-card{
+				height: 67px;
+				display: flex;
+				justify-content: center;
 				align-items: center;
+				box-shadow: none;
+				cursor: pointer;
 			}
 			.ghost {
 				opacity: .5;
@@ -161,6 +199,9 @@
 										<p>
 											<div>Organise Players :</div>
 										</p>
+										<div class="buttonContainer">
+											<paper-button raised class="purple" on-tap="_randomisePlayers">Randomise</paper-button>
+										</div>
 										<div class="players-container">
 											<div id="playerAList" data-list="A" class="sortableColumn">	
 												<div class="player-card-header">												
@@ -174,7 +215,7 @@
 													</paper-card>
 												</div>	
 												<template is="dom-repeat" items="{{playersA}}" as="player">
-													<div class$="player-card-container [[player.gender]]" data-col="A">											
+													<div class$="player-card-container [[player.gender]]" data-col="A" id="playerA_{{index}}">											
 														<paper-card class="player-card">
 															<div class="card-content">
 																<img class="avatar" src="[[player.photoUrl]]"/>
@@ -195,6 +236,18 @@
 														</div>
 													</paper-card>
 												</div>
+												
+												<template is="dom-repeat" items="{{playersA}}">
+													<div class$="player-card-container">											
+														<paper-card class="player-card">
+															<div class="card-content">
+																<div data-index$="{{index}}" on-tap="_swapPlayers">
+																	<iron-icon icon="swap-horiz"></iron-icon>
+																</div>
+															</div>
+														</paper-card>
+													</div>
+												</template>
 											</div>
 											<div id="playerBList" data-list="B" class="sortableColumn">
 												<div class="player-card-header">												
@@ -208,7 +261,7 @@
 													</paper-card>
 												</div>
 												<template is="dom-repeat" items="{{playersB}}" as="player">
-													<div class$="player-card-container [[player.gender]]" data-col="B">												
+													<div class$="player-card-container [[player.gender]]" data-col="B" id="playerB_{{index}}">												
 														<paper-card class="player-card">
 															<div class="card-content ">
 																<img class="avatar" src="[[player.photoUrl]]"/>
@@ -254,21 +307,35 @@
 							playersB:{
 								type: Array
 							},
+							sortA:{
+								type: Object
+							},
+							sortB:{
+								type: Object
+							},
 							currentList:{
 								type: String
 							}
 						},
 						createSort: function(){
 							this._oddEvenPlayers();
+							if(this.sortA && this.sortB){
+								this.sortA.destroy();
+								this.sortB.destroy();
+							}
 							var self = this;
 							var playerAList = document.getElementById("playerAList");
 							if(playerAList){
-								Sortable.create(playerAList, {
+								this.sortA = Sortable.create(playerAList, {
 									animation: 150, 
 									draggable: ".player-card-container",
 									group: "players",
 									ghostClass: 'ghost',
-									onEnd: function (evt) {
+									chosenClass: "chosen",
+									onUpdate: function (evt) {
+										self._updateUser(evt, "A");
+									},
+									onAdd: function (evt) {
 										self._moveUser(evt, "A");
 									}
 								});
@@ -276,12 +343,16 @@
 
 							var playerBList = document.getElementById("playerBList");
 							if(playerBList){
-								Sortable.create(playerBList, {
+								this.sortB = Sortable.create(playerBList, {
 									animation: 150, 
 									draggable: ".player-card-container",
 									group: "players",
 									ghostClass: 'ghost',
-									onEnd: function (evt) {
+									chosenClass: "chosen",
+									onUpdate: function (evt) {
+										self._updateUser(evt, "B");
+									},
+									onAdd: function (evt) {
 										self._moveUser(evt, "B");
 									}
 								});
@@ -304,38 +375,117 @@
 							this.set('playersB', arrB);
 						},
 						_moveUser: function(evt, origin){
-							var oldList = evt.target.dataset.list;console.log(evt)
+							//var oldList = evt.target.dataset.list;console.log(evt)
 							var oldIndex = evt.oldIndex;
 							var newIndex = evt.newIndex;
-							var col = evt.item.dataset.col;							
+							var col = evt.item.dataset.col;
 							var playersA = this.playersA;
 							var playersB = this.playersB;
-							if(origin == col){
-								if(col == "A"){
-									var i = playersA.splice(oldIndex, 1)[0];
-									playersA.splice(newIndex, 0, i);
-								}
-								if(col == "B"){
-									var i = playersB.splice(oldIndex, 1)[0];
-									playersB.splice(newIndex, 0, i);
-								}
+							if(col == "A"){
+								var i = playersA.splice(oldIndex, 1)[0];
+								playersB.splice(newIndex, 0, i);
 							}
-							else{
-								if(oldList == "A"){
-									var i = playersA.splice(oldIndex, 1)[0];
-									playersB.splice(newIndex, 0, i);
-									evt.item.dataset.col = "B";
-								}
-								if(oldList == "B"){
-									var i = playersB.splice(oldIndex, 1)[0];
-									playersA.splice(newIndex, 0, i);
-									evt.item.dataset.col = "A";
-								}
+							if(col == "B"){
+								var i = playersB.splice(oldIndex, 1)[0];
+								playersA.splice(newIndex, 0, i);
 							}
 							this.set('playersA', playersA);
 							this.set('playersB', playersB);
-							this.set('playersA.length', playersA.length);
-							this.set('playersB.length', playersB.length);
+							this._reNumberPlayers();
+						},
+						_updateUser: function(evt, origin){
+							var oldIndex = evt.oldIndex;
+							var newIndex = evt.newIndex;
+							var col = evt.item.dataset.col;
+							var playersA = this.playersA;
+							var playersB = this.playersB;
+							if(col == "A"){
+								var i = playersA.splice(oldIndex, 1)[0];
+								playersA.splice(newIndex, 0, i);
+							}
+							if(col == "B"){
+								var i = playersB.splice(oldIndex, 1)[0];
+								playersB.splice(newIndex, 0, i);
+							}
+							this.set('playersA', playersA);
+							this.set('playersB', playersB);
+							this._reNumberPlayers();
+						},
+						_swapPlayers: function(evt){
+							var el = evt.target;
+							var index = Number(el.parentElement.dataset.index);
+
+							var elmA = document.getElementById("playerA_"+index);
+							var elmB = document.getElementById("playerB_"+index);
+
+							var sibA = document.getElementById("playerA_"+(index+1));
+							var sibB = document.getElementById("playerB_"+(index+1));
+
+							if(sibA && sibB){
+								this.sortA.el.insertBefore(elmB, sibA);
+								this.sortB.el.insertBefore(elmA, sibB);
+							}
+							else{
+								this.sortA.el.appendChild(elmB);
+								this.sortB.el.appendChild(elmA);
+							}
+
+							var playersA = this.playersA;
+							var playersB = this.playersB;
+							
+							var a = playersA.splice(index, 1)[0];
+							var b = playersB.splice(index, 1)[0];
+							
+							playersA.splice(index, 0, b);									
+							playersB.splice(index, 0, a);
+
+							this.set('playersA', playersA);
+							this.set('playersB', playersB);
+
+							this._reNumberPlayers();
+						},
+						_reNumberPlayers: function(){
+							var sortA = this.sortA.el.childNodes;
+							var sortB = this.sortB.el.childNodes;
+
+							var a = 0;
+							for(var i = 0; i < sortA.length; i++){
+								if(sortA[i].classList && sortA[i].classList.contains('player-card-container')){
+									sortA[i].dataset.col = "A";
+									sortA[i].id = "playerA_"+a;
+									a++;
+								}
+							}
+							var b = 0;
+							for(var i = 0; i < sortB.length; i++){
+								if(sortB[i].classList && sortB[i].classList.contains('player-card-container')){
+									sortB[i].dataset.col = "B";
+									sortB[i].id = "playerB_"+b;
+									b++;
+								}
+							}
+							this.notifyPath('playersA.0', playersA[0]);
+							this.notifyPath('playersB.0', playersB[0]);
+							this.set('playersA.length', this.playersA.length);
+							this.set('playersB.length', this.playersB.length);
+
+							if(this.playersA.length != this.playersB.length){
+								document.querySelectorAll(".badge").forEach(function(a){
+									a.classList.add("error");
+								});
+							}
+							else{
+								document.querySelectorAll(".badge").forEach(function(a){
+									a.classList.remove("error");
+								});
+							}
+						},
+						_randomisePlayers: function(){
+							var players = FirebaseHelper.shuffleArray(this.players);
+							this.set('players', players);
+							this.createSort();
+							this.notifyPath('playersA.0', playersA[0]);
+							this.notifyPath('playersB.0', playersB[0]);
 						},
 						_calculateAge: function(birthday) {
 							var d = new Date().getTime();
