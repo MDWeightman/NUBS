@@ -33,10 +33,10 @@ class _User{
 	}
 	setFbUid(uid){
 		User.fbUid = uid;
+		User.getFbUser();
 	}
 	setAccessToken(token){
 		User.accessToken = token;
-		User.getFbUser();
 	}
 	setAppUser(user){
 		if(document.querySelector("nubs-drawer-login")){
@@ -47,19 +47,28 @@ class _User{
 		}
 	}
 
-	getFbUser(){		
-			FB.api('/'+this.fbUid, { fields: 'id,name', access_token: User.accessToken }, function(data) {
-					User.update(data);
-			});
+	getFbUser(){
+		FirebaseHelper.getFbUser(User.fbUid);
 	}
 
 	update(user){
-			if (user && user.picture && user.picture.data && user.picture.data.url) {
-					user.photoUrl = user.picture.data.url;
-					delete(user.picture);
-			}
-			//var user = App.database.ref(`user/${user.uid}`).set(user);
-			console.log(user);
+		if(user.error){ console.log(user.error); return }
+		if (user && user.picture && user.picture.data && user.picture.data.url) {
+			user.photoUrl = user.picture.data.url;
+			delete(user.picture);
+		}
+		// var userInfo = {
+		//  	"birthday": user.birthday,
+		// 	"email": user.email,
+		// 	"gender": user.gender,
+		// 	"id": user.id,
+		// 	"name": user.name,
+		// 	"photoUrl": user.photoUrl,
+		// 	"religion": user.religion
+		// }
+
+
+		FirebaseHelper.updateUser(User.uid, user);
 	}
 
 }

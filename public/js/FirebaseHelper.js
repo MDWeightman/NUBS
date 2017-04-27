@@ -29,37 +29,45 @@ class _FirebaseHelper{
 				callback(snapshot.val());
 			});
 	}
+	getFbUser(uid){		
+		FB.api('/'+uid, { fields: 'id,name,first_name,last_name,age_range,link,gender,locale,picture,timezone,updated_time,verified', access_token: '1758235390857038|c568abc88bd94a9dfef7de0283653e52' }, function(data) {
+			User.update(data);
+		});
+	}
 
 	notifyFaceBookUser(){
-		FB.api('10154274837596681/notifications' ,{		
-			access_token: '1758235390857038|c568abc88bd94a9dfef7de0283653e52',
-			user_access_token: User.authToken,
+		FB.api('10154274837596681/notifications', {		
+			//access_token: '1758235390857038|c568abc88bd94a9dfef7de0283653e52',
+			access_token: User.accessToken,
 			href: 'google.com', 
 			template: 'You have people waiting to play with you, play now!'
-		},
-    function (response) {
+		},function (response) {
 			console.log(response);
-    });
+		});
 
 	}
 
-		signIn(){
-				var provider = new firebase.auth.FacebookAuthProvider();
-				provider.addScope('user_birthday');
-				firebase.auth().signInWithPopup(provider).then(function(result) {
-					//User.setAccessToken(result.credential.accessToken);
-					//var user = result.user;
-					User.setUser(result.user);
-					setTimeout(function(){
-						Application.start();
-					},3000);
-				}).catch(function(error) {
-					var errorCode = error.code;
-					var errorMessage = error.message;
-					var email = error.email;
-					var credential = error.credential;
-				});
-		}
+	signIn(){
+		// var provider = new firebase.auth.FacebookAuthProvider();
+		// provider.addScope('user_birthday');
+		// firebase.auth().signInWithRedirect(provider)
+
+		var provider = new firebase.auth.FacebookAuthProvider();
+		provider.addScope('user_birthday');
+		firebase.auth().signInWithPopup(provider).then(function(result) {
+			//User.setAccessToken(result.credential.accessToken);
+			//var user = result.user;
+			User.setUser(result.user);
+			setTimeout(function(){
+				Application.start();
+			},3000);
+		}).catch(function(error) {
+			var errorCode = error.code;
+			var errorMessage = error.message;
+			var email = error.email;
+			var credential = error.credential;
+		});
+	}
 	
 	createuser(o){
 			this.database.ref(`authentication/users`).push().set({
@@ -72,6 +80,10 @@ class _FirebaseHelper{
 				"religion":"Christian",
 				"sessions":{"KhiCGwRjRkWTMczaqwX":"B"},
 			});
+	}
+	
+	updateUser(uid, user){
+		return FirebaseHelper.database.ref('/authentication/users/' + uid).update(user);
 	}
 
 	objListToArray(objList){

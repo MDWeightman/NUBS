@@ -27,6 +27,15 @@
 					xfbml: true,
 					version: 'v2.9'
 			});
+			FB.login(
+				function(response) {
+					console.log(response);
+				},
+				{
+					scope: 'user_likes',
+					auth_type: 'rerequest'
+				}
+			);
 		</script>
 
 		<script src="https://www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
