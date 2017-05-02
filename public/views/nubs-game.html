@@ -25,17 +25,15 @@
 				width: calc(100% 10px - 1px);
 			}
 
-			paper-card .card-content {
+			/*paper-icon-item{
 				padding: 14px;
-			}
-			paper-card.player-card{
 				display: block;
 				margin:0 0 0 0;
 				width: 100%;
 				background-color: transparent;
 				box-shadow: none;
 				border-bottom: 1px solid #dddddd;
-			}
+			}*/
 			
 			paper-card.player-card.list-header{
 				background-color: #dddddd;
@@ -46,14 +44,16 @@
 			}
 			.player-card-container.male{
 				background-color: #636bd8;
-				color: #ffffff;
+				color: #ffffff;				
+    			border-bottom: 1px solid #ffffff;
 			}
 			.player-card-container.female{
 				background-color: #d863c9;
-				color: #ffffff;
+				color: #ffffff;				
+    			border-bottom: 1px solid #ffffff;				
 			}
 
-			.badge{
+			/*.badge{
 				min-width: 22px;
 				height: 22px;
 				line-height: 22px;
@@ -63,13 +63,15 @@
 				color: #212121;
 				display: inline-block;
 				vertical-align: top;
-			}
-			.badge.error{
+			}*/
+			.avatar.error{
 				background-color: #E91E63;
 				color: #ffffff;
 			}
 			paper-input{
-				width: 150px;
+				min-width: 150px;
+				flex: 1 0;
+				margin: 0px 5px;
 			}
 			paper-slider{
 				width: 100%;
@@ -95,6 +97,13 @@
 			.dataInput{
 				width: calc(100% - 100px);
 				margin: 0px 50px 0px 50px;
+			}
+			
+			.dataInputs{
+				width: 100%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
 			}
 			.caption {
 				padding-left: 12px;
@@ -132,8 +141,8 @@
 			}
 
 			.sortableColumn.VS .player-card-header{
-				height: 51px;
-				width: 52px;
+				height: 48px;
+				width: 50px;
 			}
 			
 			.sortableColumn.VS paper-card{
@@ -156,6 +165,10 @@
 				vertical-align: top;
 				margin-right: 16px;
 				display: inline-block; 
+			}
+			.avatar.header{				
+				text-align: center;
+				line-height: 30px;
 			}
 			.player-info {
 				display: inline-block; 
@@ -184,10 +197,11 @@
 												<template is="dom-if" if="{{data.type == 'RANGE'}}">
 													<div>[[data.name]]: <span class="caption"></span></div>
 														<div class="dataInput">															
-															<paper-input label="Minimum" value="{{data.min}}"></paper-input>
-															<paper-input label="Maximun" value="{{data.max}}"></paper-input>
-															<paper-input label="Default Value" value="{{data.default}}"></paper-input>
-															
+															<div class="dataInputs">														
+																<paper-input label="Minimum" value="{{data.min}}"></paper-input>
+																<paper-input label="Maximun" value="{{data.max}}"></paper-input>
+																<paper-input label="Default Value" value="{{data.default}}"></paper-input>
+															</div>
 															<div>Preview</div>
 															<paper-slider id="[[data.key]]" pin snaps min="[[data.min]]" max="[[data.max]]" step="1" value="{{data.default}}" editable></paper-slider>
 														</div>
@@ -203,34 +217,32 @@
 											<paper-button raised class="purple" on-tap="_randomisePlayers">Randomise</paper-button>
 										</div>
 										<div class="players-container">
-											<div id="playerAList" data-list="A" class="sortableColumn">	
-												<div class="player-card-header">												
-													<paper-card class="player-card list-header">
-														<div class="card-content">
+											<div id="playerAList" data-list="A" class="sortableColumn" role="listbox">	
+												<div class="player-card-header">													
+													<paper-icon-item class="player-card-header">
+														<div class="avatar header" item-icon>[[playersA.length]]</div>
+														<paper-item-body one-line>
 															<div id="playersA" class="player-name">
 																<span style="line-height: 20px;	font-size: 20px;color: #212121;">Player A</span>
-																<div class="badge" for="playersA">[[playersA.length]]</div>
 															</div>
-														</div>
-													</paper-card>
-												</div>	
+														</paper-item-body>
+													</paper-icon-item>
+												</div>
 												<template is="dom-repeat" items="{{playersA}}" as="player">
-													<div class$="player-card-container [[player.gender]]" data-col="A" id="playerA_{{index}}">											
-														<paper-card class="player-card">
-															<div class="card-content">
-																<img class="avatar" src="[[player.photoUrl]]"/>
-																<div class="player-info">
-																	<div class="player-name">[[player.name]]</div>
-																	<div class="player-age">{{_calculateAge(player.birthday)}}</div>
-																</div>
-															</div>
-														</paper-card>
+													<div class$="player-card-container [[player.gender]]" data-col="A" id="playerA_{{index}}">
+														<paper-icon-item class="player-card-header">
+															<div class="" item-icon><img class="avatar" src="[[player.photoUrl]]"/></div>
+															<paper-item-body two-line>
+																<div class="player-name">[[player.name]]</div>
+																<div class="player-age">{{_calculateAge(player.birthday)}}</div>
+															</paper-item-body>
+														</paper-icon-item>
 													</div>
 												</template>
 											</div>
 											<div id="playerVsList" class="sortableColumn VS">												
 												<div class="player-card-header">												
-													<paper-card class="player-card list-header">
+													<paper-item class="" style="padding: 0px;height: 48px;width: 52px;">
 														<div class="card-content">
 															<div class="player-name">VS</div>
 														</div>
@@ -238,45 +250,45 @@
 												</div>
 												
 												<template is="dom-repeat" items="{{playersA}}">
-													<div class$="player-card-container">											
-														<paper-card class="player-card">
+													<div class$="player-card-container" style="padding: 0px;height: 48px;">											
+														<paper-item one-line style="padding: 0px;height: 48px;width: 52px;">
 															<div class="card-content">
 																<div data-index$="{{index}}" on-tap="_swapPlayers">
 																	<iron-icon icon="swap-horiz"></iron-icon>
 																</div>
 															</div>
-														</paper-card>
+														</paper-item>
 													</div>
 												</template>
 											</div>
 											<div id="playerBList" data-list="B" class="sortableColumn">
-												<div class="player-card-header">												
-													<paper-card class="player-card list-header">
-														<div class="card-content">
+												<div class="player-card-header">													
+													<paper-icon-item class="player-card-header">
+														<div class="avatar header" item-icon>[[playersB.length]]</div>
+														<paper-item-body one-line>
 															<div id="playersB" class="player-name">
 																<span style="line-height: 20px;	font-size: 20px;color: #212121;">Player B</span>
-																<div class="badge" for="playersB">[[playersB.length]]</div>
 															</div>
-														</div>
-													</paper-card>
+														</paper-item-body>
+													</paper-icon-item>
 												</div>
 												<template is="dom-repeat" items="{{playersB}}" as="player">
-													<div class$="player-card-container [[player.gender]]" data-col="B" id="playerB_{{index}}">												
-														<paper-card class="player-card">
-															<div class="card-content ">
-																<img class="avatar" src="[[player.photoUrl]]"/>
-																<div class="player-info">
-																	<div class="player-name">[[player.name]]</div>
-																	<div class="player-age">{{_calculateAge(player.birthday)}}</div>
-																</div>
-															</div>
-														</paper-card>
+													<div class$="player-card-container [[player.gender]]" data-col="B" id="playerB_{{index}}">
+														<paper-icon-item class="player-card-header">
+															<div class="" item-icon><img class="avatar" src="[[player.photoUrl]]"/></div>
+															<paper-item-body two-line>
+																<div class="player-name">[[player.name]]</div>
+																<div class="player-age">{{_calculateAge(player.birthday)}}</div>
+															</paper-item-body>
+														</paper-icon-item>
 													</div>
 												</template>
 											</div>
 										</div>
 									</div>
-									<div>Step 3</div>
+									<div>
+										<p>Players : [[playersA.length]]</p>
+									</div>
 								</iron-pages>
 						</div>
 						<div class="card-actions">
@@ -470,12 +482,12 @@
 							this.set('playersB.length', this.playersB.length);
 
 							if(this.playersA.length != this.playersB.length){
-								document.querySelectorAll(".badge").forEach(function(a){
+								document.querySelectorAll(".avatar.header").forEach(function(a){
 									a.classList.add("error");
 								});
 							}
 							else{
-								document.querySelectorAll(".badge").forEach(function(a){
+								document.querySelectorAll(".avatar.header").forEach(function(a){
 									a.classList.remove("error");
 								});
 							}
