@@ -187,7 +187,9 @@
 								<iron-pages selected="[[selected]]">
 									<div>
 										<p>
-											<div>Players: <span class="caption">[[game.players]]</span></div>
+											<div>Players per session: <span class="caption">[[game.players]]</span></div>
+											<div>Players to play game:<span class="caption"><paper-input label="" style="width:150px;display:inline-block;" value="{{playersToPlay}}"></paper-input></span></div>
+											
 										</p>
 										<p>
 											<div>Game Data Between Players:</div>
@@ -287,7 +289,8 @@
 										</div>
 									</div>
 									<div>
-										<p>Players : [[playersA.length]]</p>
+										<p>Sessions to be created : [[playersA.length]]</p>
+										<paper-button raised on-tap="_createGameInstance">Create</paper-button>										
 									</div>
 								</iron-pages>
 						</div>
@@ -307,10 +310,15 @@
 						is: 'nubs-game',
 						properties: {
 							game:{
-								type: Object
+								type: Object,
+								observer: 'setPlayersToPlay'
 							},
 							players:{
 								type: Array,
+								observer: 'createSort'
+							},
+							playersToPlay:{
+								type: Number,
 								observer: 'createSort'
 							},
 							playersA:{
@@ -328,6 +336,9 @@
 							currentList:{
 								type: String
 							}
+						},
+						setPlayersToPlay: function(game){
+							this.playersToPlay = game.playersToPlay;
 						},
 						createSort: function(){
 							this._oddEvenPlayers();
@@ -383,8 +394,8 @@
 									}
 								}
 							}
-							this.set('playersA', arrA);
-							this.set('playersB', arrB);
+							this.set('playersA', arrA.splice(0, Number(this.playersToPlay)/2));
+							this.set('playersB', arrB.splice(0, Number(this.playersToPlay)/2));
 						},
 						_moveUser: function(evt, origin){
 							//var oldList = evt.target.dataset.list;console.log(evt)
@@ -505,6 +516,20 @@
 							var diff = d - bd;
 							var dd = new Date(diff);
     						return Math.abs(dd.getUTCFullYear() - 1970);
+						},
+						_createGameInstance: function(){
+								var playersA = this.playersA;
+								var playersB = this.playersB;
+								var data = FirebaseHelper.arrayListToObject(this.game.data);
+								var gameKey = Screen_NewGameInstance.gameKey;
+								var name = this.game.name;
+								FirebaseHelper.createGameInstance({
+										playersA: playersA,
+										playersB: playersB,
+										data: data,
+										gameKey: gameKey,
+										name: name
+								});
 						}
 				});
 		</script>

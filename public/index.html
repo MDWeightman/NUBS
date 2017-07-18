@@ -30,9 +30,12 @@
 			FB.login(
 				function(response) {
 					console.log(response);
+					setTimeout(function(){
+						User.setFbUid();
+					}, 1000);
 				},
 				{
-					scope: 'user_likes',
+					scope: 'user_likes,user_birthday',
 					auth_type: 'rerequest'
 				}
 			);
@@ -54,6 +57,7 @@
 
 
 
+		<script src="js/Moment.js"></script>
 		<script src="js/Application.js"></script>
 		<script src="js/User.js"></script>
 		<script src="js/FirebaseHelper.js"></script>

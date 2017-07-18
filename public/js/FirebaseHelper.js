@@ -14,8 +14,23 @@ class _FirebaseHelper{
 					callback(snapshot.val());
 			});
 	}
+	getGameInstance(gameKey, callback){
+			FirebaseHelper.database.ref(`game_instance/${gameKey}`).once('value', function(snapshot) {
+					callback(snapshot.val());
+			});
+	}
+	getGameSessions(gameKeys, callback){
+			FirebaseHelper.database.ref(`session`).once('value', function(snapshot) {
+					var obj = {};
+					for(var key in gameKeys){
+						obj[key] = snapshot.val()[key];
+						obj[key].player = gameKeys[key];
+					}
+					callback(FirebaseHelper.objListToArray(obj));
+			});
+	}
 	getUser(uid, callback){
-			FirebaseHelper.database.ref(`authentication/users/${uid}`).once('value', function(snapshot) {
+			return FirebaseHelper.database.ref(`authentication/users/${uid}`).once('value', function(snapshot) {
 					callback(snapshot.val());
 			});
 	}
@@ -30,7 +45,7 @@ class _FirebaseHelper{
 			});
 	}
 	getFbUser(uid){		
-		FB.api('/'+uid, { fields: 'id,name,first_name,last_name,age_range,link,gender,locale,picture,timezone,updated_time,verified', access_token: '1758235390857038|c568abc88bd94a9dfef7de0283653e52' }, function(data) {
+		FB.api('/me', { fields: 'id,name,first_name,last_name,link,gender,birthday,locale,likes,picture,timezone,updated_time,verified' }, function(data) {
 			User.update(data);
 		});
 	}
@@ -86,6 +101,86 @@ class _FirebaseHelper{
 		return FirebaseHelper.database.ref('/authentication/users/' + uid).update(user);
 	}
 
+	createGameInstance(game){
+				var updates = {};
+				var gameInstance = FirebaseHelper.database.ref('/game_instance').push(); console.log("gameInstance", gameInstance);
+				var sessions = {}
+				var timestamp = new Date().getTime();
+
+				for(var p = 0; p < game.playersA.length; p++){
+						var playerA = game.playersA[p];
+						var playerB = game.playersB[p];
+						var session = FirebaseHelper.database.ref('/session').push();
+						sessions[session.key] = session.key;
+						updates['/session/' + session.key] = {
+								gameKey: gameInstance.key,
+								gameName: game.name,
+								complete: false,
+								turn: "A",
+								timestamp: timestamp,
+								players: {
+										A: playerA.key,
+										B: playerB.key
+								}
+						};
+						updates['/authentication/users/' + playerA.key + '/sessions/pending/'+ session.key] = "A";
+						updates['/authentication/users/' + playerB.key + '/sessions/pending/'+ session.key] = "B";
+				}
+				
+			updates['/game_instance/' + gameInstance.key] = {
+						gameKey: game.gameKey,
+						gameName: game.name,
+						data: game.data,
+						timestamp: timestamp,
+						sessions: sessions,
+						complete: false
+				};
+
+				
+			return FirebaseHelper.database.ref().update(updates);
+		}
+
+		playerPlayTurn(turn){
+				var updates = {};
+				var player = turn.session.players[turn.session.player];
+				var nextPlayer = null; 
+				var timestamp = new Date().getTime();
+				switch(turn.session.player){
+					case "A":
+							nextPlayer = "B"
+						break;
+					case "B":
+						if(turn.game.players > 2){
+							nextPlayer = "C"
+						}
+						break;
+					case "C":
+						if(turn.game.players > 3){
+							nextPlayer = "D"
+						}
+						break;
+				}
+				if(nextPlayer){
+					updates[`/session/${turn.session.key}/turn`] = nextPlayer;
+				}
+				else{
+					updates[`/session/${turn.session.key}/complete`] = true;
+				}
+
+				updates[`/session/${turn.session.key}/outcome/${turn.session.player}`] = turn.outcome;
+				
+				updates[`/authentication/users/${player}/sessions/pending/${turn.session.key}`] = null;
+				updates[`/authentication/users/${player}/sessions/played/${turn.session.key}`] = {
+					timestamp: timestamp,
+					player: turn.session.player
+				}
+				FirebaseHelper.database.ref().update(updates).then(function(){						
+					FirebaseHelper.getUser(User.uid, User.setUserData).then(function(){
+						Application.Screen.set(Screen_PlayerGames);
+					});
+				});
+		}
+
 	objListToArray(objList){
 		var arr = [];
 		for(var key in objList){
@@ -95,6 +190,17 @@ class _FirebaseHelper{
 		}
 		return arr;
 	}
+	
+	arrayListToObject(arr){
+        var obj = {};
+        for(var i = 0; i < arr.length; i++){
+            var item = arr[i];
+            var key = item.key;
+            delete item.key;
+            obj[key] = item;
+        }
+        return obj;
+    }
 
 	shuffleArray(arr) {
 			for (var i = arr.length - 1; i > 0; i--) {

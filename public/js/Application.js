@@ -13,6 +13,9 @@ class _Application{
 		else if(!User.uid){
 			this.Screen.set(Screen_Login);
 		}
+		else{
+			this.Screen.set(Screen_PlayerGames);
+		}
 	}
 
 }

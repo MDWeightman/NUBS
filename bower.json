@@ -45,6 +45,10 @@
     "paper-spinner": "PolymerElements/paper-spinner#^1.2.1",
     "social-links": "convoo/social-links#^0.0.2",
     "paper-badge": "PolymerElements/paper-badge#^1.1.4",
-    "paper-item": "PolymerElements/paper-item#^1.2.2"
+    "paper-item": "PolymerElements/paper-item#^1.2.2",
+    "paper-listbox": "PolymerElements/paper-listbox#^2.0.0"
+  },
+  "resolutions": {
+    "webcomponentsjs": "^v1.0.0"
   }
 }

@@ -9,7 +9,6 @@ class _User{
 
 	setUser(user){
 		User.setUid(user.uid);
-		User.setFbUid(user.providerData[0].uid);
 		user.getToken().then(function(data) {
 			User.setAccessToken(data);
 		});

@@ -1,0 +1,207 @@
+<dom-module id="nubs-game-ULTIMATUM">
+	<template>
+		<style>
+			paper-card{
+				margin: 10px;
+				display: block;
+				width: calc(100% - 20px);
+			}
+  		.game-header { @apply(--paper-font-headline); }
+			#howTo{
+				margin: 5px 0px 0px 5px;
+			}
+			.dataInput{
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			.data{
+				width: 100%;
+    		margin: 0px 20px;
+			}
+			.data paper-slider{
+				width: 100%;
+			}
+			.data.value{
+				width: 160px;
+			}
+			.data.value paper-input{
+				display: inline-block;
+				margin: 0px 10px;
+				width: 50px;
+				text-align: center;
+			}
+			.card-actions{
+				text-align: right;
+			}
+			.card-actions paper-button{
+				color: var(--app-primary-color) !important
+			}
+			
+			.dataInput.buttons{
+				margin: 20px 0px;
+			}
+			.data.button{
+				flex: 1 0;
+			}
+			.data.button paper-button{
+				width: 100%;
+				padding: 20px 0px;
+			}
+			.accept{
+				background-color: #4CAF50;
+				color: #ffffff;
+			}
+			.decline{
+				background-color: #F44336;
+				color: #ffffff;
+			}
+		</style>
+
+			<paper-card>
+				<div class="card-content">
+					<div class="game-header">[[game.name]]</div>
+					<div>[[game.description]]</div>
+				</div>
+			</paper-card>
+			<paper-card>
+				<div class="card-content">
+					<div class="game-header">How to play</div>
+					<div>Player [[session.player]] : </div>
+					<div id="howTo"></div>
+				</div>
+			</paper-card>
+				<paper-card>
+					<div class="card-content">
+						<div class="game-header">Lets play</div>
+							<template is="dom-if" if="{{playerA}}">
+								<div class="dataInput">							
+									<div class="data value">
+										Keep: <paper-input value="{{keep}}"></paper-input>
+									</div>
+									<div class="data">
+										<paper-slider id="units" pin snaps min="0" max="[[gameInstance.data.units.max]]" step="1" value="{{gameInstance.data.units.default}}"></paper-slider>
+									</div>
+									<div class="data value">
+										Give: <paper-input value="{{give}}"></paper-input>
+									</div>
+								</div>
+							</template>
+							<template is="dom-if" if="{{playerB}}">
+								<div class="dataInput buttons">							
+									<div class="data value">
+										Total: <paper-input value="{{gameInstance.data.units.max}}"></paper-input>
+									</div>
+									<div class="data value">
+										Player A: <paper-input value="{{session.outcome.A.keep}}"></paper-input>
+									</div>
+									<div class="data value">
+										Given: <paper-input value="{{session.outcome.A.give}}"></paper-input>
+									</div>
+								</div>
+								<div class="dataInput">
+									<div class="data button">
+										<paper-button class="accept" raised on-tap="_accept">Accept</paper-button>
+									</div>
+									<div class="data button">
+										<paper-button class="decline" raised on-tap="_decline">Decline</paper-button>
+									</div>
+								</div>
+							</template>
+						</div>
+						<template is="dom-if" if="{{playerA}}">
+							<div class="card-actions">
+								<paper-button on-tap="_playTurn">Play Turn</paper-button>
+							</div>
+						</template>
+				</paper-card>
+
+	</template>
+
+	<script>
+		Polymer({
+			is: 'nubs-game-ULTIMATUM',
+			properties: {
+				session: {
+					type: Object
+				},
+				gameInstance: {
+					type: Object,
+					observer: "_setKeepGive"
+				},
+				game: {
+					type: Object,
+					observer: "_setHowTo"
+				},
+				playerA: {
+					type: Boolean,
+					value: false
+				},
+				playerB: {
+					type: Boolean,
+					value: false
+				},
+				keep:{
+					type: Number
+				},
+				give:{
+					type: Number
+				},
+				accept:{
+					type: Boolean
+				}
+			},
+			observers: [
+				'_setKeepGive(gameInstance.data.units.default)'
+			],
+			_isPlayer(player){
+				if(this.session){
+					return this.session.player == player;
+				}
+				return null;
+			},
+			_setHowTo: function(){
+				document.getElementById("howTo").innerHTML = this.game.howToPlay[this.session.player];
+				if(this.session.player == "A"){
+					this.playerA = true;
+				}
+				if(this.session.player == "B"){
+					this.playerB = true;
+				}
+			},
+			_setKeepGive:function(n){
+				this.give = Number(n);
+				this.keep = Number(this.gameInstance.data.units.max) - Number(n);
+			},
+			_accept: function(){
+				this.accept = true;
+				this._playTurn();
+			},
+			_decline: function(){
+				this.accept = false;
+				this._playTurn();
+			},
+			_playTurn: function(){
+				var turn = {
+					session: this.session,
+					gameInstance: this.gameInstance,
+					game: this.game,
+					outcome: {}
+				};
+				if(turn.session.player == "A"){
+					turn.outcome = {
+						give: this.give,
+						keep: this.keep
+					}
+				}
+				else{
+					turn.outcome = {
+						accept: this.accept
+					}
+				}
+				FirebaseHelper.playerPlayTurn(turn);
+			}
+		})
+	</script>
+
+</dom-module>

@@ -1,0 +1,89 @@
+<dom-module id="nubs-games-player">
+	<template>
+		<style>
+			h4{
+				margin: 10px;
+			}
+			paper-listbox{
+				margin: 10px;
+			}
+			.label{
+				flex: 1 1;
+				display: inline-block;
+				height: 48px;
+				display: flex;
+				justify-content: flex-start;
+				align-items: center;
+			}
+			.when{
+					flex: 1 0;
+					display: flex;
+					justify-content: flex-end;
+					align-items: center;
+					height: 48px;
+			}
+		</style>
+		
+		<template is="dom-if" if="{{pending}}">
+			<h4>Pending Games [[pending.length]]</h4>
+			<paper-listbox>
+				<template is="dom-repeat" items="[[pending]]" as="session">
+					<paper-item on-tap="_playGame" data-gameKey$="[[session.gameKey]]" data-index$="[[index]]" data-type="pending"><span class="label">[[session.gameName]] - {{_getPlayerText(session)}}</span><span class="when">{{_getMoment(session.timestamp)}}</span></paper-item>
+				</template>
+			</paper-listbox>
+		</template>
+		
+		<template is="dom-if" if="{{played}}">
+			<h4>Played Games [[played.length]]</h4>
+			<paper-listbox>
+				<template is="dom-repeat" items="[[played]]" as="session">
+					<paper-item data-gameKey$="[[session.gameKey]]" data-index$="[[index]]" data-type="played"><span class="label">[[session.gameName]] - {{_getPlayerText(session)}}</span><span class="when">{{_getMoment(session.player.timestamp)}}</span></paper-item>
+				</template>
+			</paper-listbox>
+		</template>
+
+	</template>
+
+	<script>
+		Polymer({
+			is: 'nubs-games-player',
+			properties: {
+				pending: {
+					type: Array
+				},
+				played: {
+					type: Array
+				}
+			},
+			_getPlayerText: function(session){
+				if(session.complete){
+					return "This game is complete - tap to see outcome"
+				}
+				else if(session.player == "A" && session.turn == "A"){
+					return "You are player A - tap to play"
+				}
+				else if(session.player.player == "A" && session.turn == "B"){
+					return "You were player A - waiting for player B"
+				}
+				else if(session.player == "B" && session.turn == "B"){
+					return "You are player B - tap to play"
+				}
+				else if(session.player == "B" && session.turn == "A"){
+					return "You are player B - Waiting for player A"
+				}
+			},
+			_playGame: function(ev){
+				var dataset = ev.target.parentElement.dataset;
+				var session = this[dataset.type][dataset.index];
+				var gameName = session.gameName.toUpperCase();
+				var screen = eval("Screen_Game_"+gameName);
+				Application.Screen.set(screen);
+				screen.setUp(session);
+			},
+			_getMoment: function(timestamp){
+				return moment(timestamp).fromNow();
+			}
+		})
+	</script>
+
+</dom-module>
